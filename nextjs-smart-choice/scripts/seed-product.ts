@@ -1,5 +1,5 @@
 
-import { createClient } from '@sanity/client'
+import { createClient } from 'next-sanity'
 import path from 'path'
 import fs from 'fs'
 
