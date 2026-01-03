@@ -1,28 +1,44 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setError('');
 
-        // TODO: Implement actual login logic
-        console.log('Login attempt with:', { email, password });
+        try {
+            const result = await signIn('credentials', {
+                redirect: false,
+                email,
+                password,
+            });
 
-        // Simulate API call
-        setTimeout(() => {
+            if (result?.error) {
+                setError('Invalid email or password');
+                setIsLoading(false);
+            } else {
+                // Login successful!
+                router.push('/');
+                router.refresh();
+            }
+        } catch (err) {
+            setError('An error occurred. Please try again.');
             setIsLoading(false);
-            alert('Login functionality will be implemented with backend');
-        }, 1000);
+        }
     };
 
     return (
@@ -168,6 +184,21 @@ export default function LoginPage() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div style={{
+                            padding: '12px',
+                            backgroundColor: '#fee',
+                            border: '1px solid #fcc',
+                            borderRadius: '8px',
+                            color: '#c33',
+                            fontSize: '14px',
+                            marginBottom: '1rem'
+                        }}>
+                            {error}
+                        </div>
+                    )}
 
                     {/* Forgot Password */}
                     <div style={{ textAlign: 'right', marginBottom: '1.5rem' }}>
