@@ -48,6 +48,7 @@ export default defineType({
                 {
                     type: 'object',
                     fields: [
+                        { name: 'id', type: 'string', title: 'ID (unique identifier, e.g. "color", "size")' },
                         { name: 'label', type: 'string', title: 'Label' },
                         {
                             name: 'type',

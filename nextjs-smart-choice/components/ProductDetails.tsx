@@ -70,7 +70,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                                     </label>
 
                                     <div className="flex flex-wrap gap-4">
-                                        {variant.values.map((val, vIdx) => {
+                                        {variant.values?.map((val, vIdx) => {
                                             const isSelected = selections[variant.id] === val;
 
                                             if (variant.type === 'color') {
