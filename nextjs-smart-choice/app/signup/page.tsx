@@ -30,14 +30,34 @@ export default function SignupPage() {
 
         setIsLoading(true);
 
-        // TODO: Implement actual signup logic
-        console.log('Signup attempt with:', formData);
+        try {
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
 
-        // Simulate API call
-        setTimeout(() => {
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || 'Signup failed');
+                setIsLoading(false);
+                return;
+            }
+
+            // Success! Redirect to login
+            alert('Account created successfully! Please log in.');
+            window.location.href = '/login';
+
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('An error occurred during signup');
             setIsLoading(false);
-            alert('Signup functionality will be implemented with backend');
-        }, 1000);
+        }
     };
 
     return (

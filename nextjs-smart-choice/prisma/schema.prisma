@@ -21,6 +21,15 @@ model Order {
   updatedAt        DateTime @updatedAt
 }
 
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // Hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Optional: If we want to store products in DB later
 model Product {
   id          String   @id
