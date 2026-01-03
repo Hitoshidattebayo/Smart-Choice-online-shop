@@ -6,4 +6,4 @@ This repository contains the source code for the Smart Choice e-commerce platfor
 - `nextjs-smart-choice`: The Next.js frontend application.
 - `studio-smart-choice`: The Sanity Studio CMS configuration.
 
-Deployment trigger: 2026-01-04
+Last deployment trigger: 2026-01-04 01:40
