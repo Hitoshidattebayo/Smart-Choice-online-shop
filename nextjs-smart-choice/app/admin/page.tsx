@@ -1,6 +1,10 @@
 import { prisma } from '@/lib/prisma';
 import { markAsPaid } from '@/actions/order';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import AdminLoginForm from '@/components/AdminLoginForm';
+import { LogOut } from 'lucide-react';
+import { logoutAdmin } from '@/actions/admin-auth';
 
 // Force dynamic to ensure we see latest orders
 export const dynamic = 'force-dynamic';
@@ -10,6 +14,13 @@ export default async function AdminPage({
 }: {
     searchParams: { q?: string };
 }) {
+    const cookieStore = cookies();
+    const adminToken = cookieStore.get('admin_token');
+
+    if (adminToken?.value !== 'true') {
+        return <AdminLoginForm />;
+    }
+
     const query = searchParams.q || '';
 
     const orders = await prisma.order.findMany({
@@ -33,7 +44,14 @@ export default async function AdminPage({
     return (
         <div className="container py-12">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                <div className="flex items-center gap-4">
+                    <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                    <form action={logoutAdmin}>
+                        <button type="submit" className="text-sm text-red-500 hover:text-red-700 flex items-center gap-1">
+                            <LogOut size={16} /> Logout
+                        </button>
+                    </form>
+                </div>
                 <div className="text-sm text-muted-foreground">
                     Total Orders: {orders.length}
                 </div>
