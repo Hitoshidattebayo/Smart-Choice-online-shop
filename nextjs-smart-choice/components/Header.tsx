@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut, signIn } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -253,9 +253,13 @@ export default function Header() {
                                                     try {
                                                         const response = await fetch('/api/auth/guest', { method: 'POST' });
                                                         const data = await response.json();
-                                                        if (data.success) {
-                                                            await signOut({ redirect: false });
-                                                            window.location.href = '/';
+                                                        if (data.success && data.user) {
+                                                            await signIn('credentials', {
+                                                                email: `guest_${data.user.id}@temp.local`,
+                                                                password: 'guest_temp',
+                                                                redirect: false,
+                                                            });
+                                                            window.location.reload();
                                                         }
                                                     } catch (error) {
                                                         console.error('Failed to create guest session:', error);
