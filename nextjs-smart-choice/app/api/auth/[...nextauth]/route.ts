@@ -16,6 +16,26 @@ const handler = NextAuth({
                     throw new Error('Invalid credentials')
                 }
 
+                // Handle guest users
+                if (credentials.email.startsWith('guest_')) {
+                    const userId = credentials.email.replace('guest_', '').replace('@temp.local', '');
+                    const user = await prisma.user.findUnique({
+                        where: { id: userId }
+                    });
+
+                    if (user && user.isGuest) {
+                        return {
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                            isGuest: user.isGuest,
+                            guestNumber: user.guestNumber,
+                        };
+                    }
+                    throw new Error('Invalid guest credentials');
+                }
+
+                // Handle regular users
                 const user = await prisma.user.findUnique({
                     where: { email: credentials.email }
                 })
@@ -37,6 +57,8 @@ const handler = NextAuth({
                     id: user.id,
                     email: user.email,
                     name: user.name,
+                    isGuest: user.isGuest || false,
+                    guestNumber: user.guestNumber || null,
                 }
             }
         })
@@ -46,6 +68,24 @@ const handler = NextAuth({
     },
     session: {
         strategy: "jwt"
+    },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+                token.isGuest = user.isGuest;
+                token.guestNumber = user.guestNumber;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.isGuest = token.isGuest as boolean;
+                session.user.guestNumber = token.guestNumber as number | null;
+            }
+            return session;
+        },
     },
     secret: process.env.NEXTAUTH_SECRET,
 })

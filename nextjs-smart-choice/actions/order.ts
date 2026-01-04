@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { generatePaymentReference } from '@/lib/payment-reference';
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 
 const OrderSchema = z.object({
     customerName: z.string().min(2, "Name is required"),
@@ -34,6 +35,10 @@ export async function createOrder(prevState: any, formData: FormData) {
     const { customerName, phoneNumber, email, productId, productName, amount } = validatedFields.data;
 
     try {
+        // Get current session to link order to user
+        const session = await getServerSession();
+        const userId = session?.user?.id || null;
+
         const paymentReference = await generatePaymentReference();
 
         await prisma.order.create({
@@ -46,6 +51,7 @@ export async function createOrder(prevState: any, formData: FormData) {
                 amount,
                 status: 'PENDING_PAYMENT',
                 paymentReference,
+                userId: userId || undefined,
             },
         });
 
@@ -69,6 +75,10 @@ export async function createOrderSimple(formData: FormData) {
         throw new Error("Missing required fields");
     }
 
+    // Get current session to link order to user
+    const session = await getServerSession();
+    const userId = session?.user?.id || null;
+
     const paymentReference = await generatePaymentReference();
 
     await prisma.order.create({
@@ -81,6 +91,7 @@ export async function createOrderSimple(formData: FormData) {
             amount,
             status: 'PENDING_PAYMENT',
             paymentReference,
+            userId: userId || undefined,
         },
     });
 

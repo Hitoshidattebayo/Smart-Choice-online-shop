@@ -1,12 +1,14 @@
 'use client';
 
+import { useSession, signOut } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, User, Heart, ShoppingCart, X, Minus, Plus } from 'lucide-react';
+import { Search, User, Heart, ShoppingCart, X, Minus, Plus, LogOut, Package, Settings } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function Header() {
+    const { data: session } = useSession();
     const [showAccountMenu, setShowAccountMenu] = useState(false);
     // const [showCartDropdown, setShowCartDropdown] = useState(false); // Refactored to global context
     const accountMenuRef = useRef<HTMLDivElement>(null);
@@ -102,74 +104,183 @@ export default function Header() {
                                     border: '1px solid #e0e0e0',
                                     borderRadius: '8px',
                                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                                    minWidth: '180px',
+                                    minWidth: '220px',
                                     zIndex: 1000,
                                     overflow: 'hidden'
                                 }}>
-                                    <Link href="/login" style={{ textDecoration: 'none' }}>
-                                        <button
-                                            onClick={() => setShowAccountMenu(false)}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 16px',
-                                                border: 'none',
-                                                backgroundColor: 'transparent',
-                                                textAlign: 'left',
-                                                cursor: 'pointer',
-                                                fontSize: '14px',
-                                                fontWeight: 500,
-                                                color: '#333',
-                                                transition: 'background-color 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        >
-                                            Log in
-                                        </button>
-                                    </Link>
-                                    <Link href="/signup" style={{ textDecoration: 'none' }}>
-                                        <button
-                                            onClick={() => setShowAccountMenu(false)}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 16px',
-                                                border: 'none',
-                                                backgroundColor: 'transparent',
-                                                textAlign: 'left',
-                                                cursor: 'pointer',
-                                                fontSize: '14px',
-                                                fontWeight: 500,
-                                                color: '#333',
-                                                transition: 'background-color 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        >
-                                            Sign up
-                                        </button>
-                                    </Link>
-                                    <Link href="/" style={{ textDecoration: 'none' }}>
-                                        <button
-                                            onClick={() => setShowAccountMenu(false)}
-                                            style={{
-                                                width: '100%',
-                                                padding: '12px 16px',
-                                                border: 'none',
-                                                backgroundColor: 'transparent',
-                                                textAlign: 'left',
-                                                cursor: 'pointer',
-                                                fontSize: '14px',
-                                                fontWeight: 500,
-                                                color: '#666',
-                                                transition: 'background-color 0.2s',
-                                                borderTop: '1px solid #e0e0e0'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        >
-                                            Continue as Guest
-                                        </button>
-                                    </Link>
+                                    {session ? (
+                                        <>
+                                            {/* User Info Header */}
+                                            <div style={{
+                                                padding: '16px',
+                                                borderBottom: '1px solid #e0e0e0',
+                                                backgroundColor: '#f8f9fa'
+                                            }}>
+                                                <div style={{ fontWeight: '600', color: '#1a1a1a', marginBottom: '4px' }}>
+                                                    {session.user?.name || 'User'}
+                                                </div>
+                                                <div style={{ fontSize: '13px', color: '#666', wordBreak: 'break-all' }}>
+                                                    {session.user?.isGuest ? 'Guest Account' : session.user?.email}
+                                                </div>
+                                            </div>
+
+                                            {/* Menu Items */}
+                                            <Link href="/account" style={{ textDecoration: 'none' }}>
+                                                <button
+                                                    onClick={() => setShowAccountMenu(false)}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px 16px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        textAlign: 'left',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        color: '#333',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '10px',
+                                                        transition: 'background-color 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                >
+                                                    <User size={16} />
+                                                    My Account
+                                                </button>
+                                            </Link>
+
+                                            <Link href="/account/orders" style={{ textDecoration: 'none' }}>
+                                                <button
+                                                    onClick={() => setShowAccountMenu(false)}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px 16px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        textAlign: 'left',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        color: '#333',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '10px',
+                                                        transition: 'background-color 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                >
+                                                    <Package size={16} />
+                                                    My Orders
+                                                </button>
+                                            </Link>
+
+                                            <div style={{ height: '1px', backgroundColor: '#e0e0e0', margin: '4px 0' }} />
+
+                                            <button
+                                                onClick={() => {
+                                                    setShowAccountMenu(false);
+                                                    signOut({ callbackUrl: '/' });
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 16px',
+                                                    border: 'none',
+                                                    backgroundColor: 'transparent',
+                                                    textAlign: 'left',
+                                                    cursor: 'pointer',
+                                                    fontSize: '14px',
+                                                    color: '#e63946',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px',
+                                                    transition: 'background-color 0.2s'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff5f5'}
+                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                            >
+                                                <LogOut size={16} />
+                                                Log Out
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link href="/login" style={{ textDecoration: 'none' }}>
+                                                <button
+                                                    onClick={() => setShowAccountMenu(false)}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px 16px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        textAlign: 'left',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        fontWeight: 500,
+                                                        color: '#333',
+                                                        transition: 'background-color 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                >
+                                                    Log in
+                                                </button>
+                                            </Link>
+                                            <Link href="/signup" style={{ textDecoration: 'none' }}>
+                                                <button
+                                                    onClick={() => setShowAccountMenu(false)}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px 16px',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        textAlign: 'left',
+                                                        cursor: 'pointer',
+                                                        fontSize: '14px',
+                                                        fontWeight: 500,
+                                                        color: '#333',
+                                                        transition: 'background-color 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                >
+                                                    Sign up
+                                                </button>
+                                            </Link>
+                                            <button
+                                                onClick={async () => {
+                                                    setShowAccountMenu(false);
+                                                    try {
+                                                        const response = await fetch('/api/auth/guest', { method: 'POST' });
+                                                        const data = await response.json();
+                                                        if (data.success) {
+                                                            await signOut({ redirect: false });
+                                                            window.location.href = '/';
+                                                        }
+                                                    } catch (error) {
+                                                        console.error('Failed to create guest session:', error);
+                                                    }
+                                                }}
+                                                style={{
+                                                    width: '100%',
+                                                    padding: '12px 16px',
+                                                    border: 'none',
+                                                    backgroundColor: 'transparent',
+                                                    textAlign: 'left',
+                                                    cursor: 'pointer',
+                                                    fontSize: '14px',
+                                                    fontWeight: 500,
+                                                    color: '#666',
+                                                    transition: 'background-color 0.2s',
+                                                    borderTop: '1px solid #e0e0e0'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                            >
+                                                Continue as Guest
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -393,6 +504,6 @@ export default function Header() {
                     </div>
                 </div>
             </div>
-        </header>
+        </header >
     );
 }

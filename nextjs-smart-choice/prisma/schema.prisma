@@ -18,17 +18,22 @@ model Order {
   amount           Float
   status           String   @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAID, CANCELLED
   paymentReference String   @unique
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String   // Hashed password
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  email       String?  @unique
+  password    String?  // Hashed password
+  isGuest     Boolean  @default(false)
+  guestNumber Int?     @unique
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // Optional: If we want to store products in DB later

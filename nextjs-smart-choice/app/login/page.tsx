@@ -41,6 +41,41 @@ export default function LoginPage() {
         }
     };
 
+    const handleGuestLogin = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            // Create guest user
+            const response = await fetch('/api/auth/guest', {
+                method: 'POST',
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                setError('Failed to create guest session');
+                setIsLoading(false);
+                return;
+            }
+
+            // Sign in the guest user
+            const result = await signIn('credentials', {
+                redirect: false,
+                email: `guest_${data.user.id}@temp.local`,
+                password: 'guest_temp',
+            });
+
+            // For guests, we'll just redirect without actual credential auth
+            // Instead, we manually create a session
+            router.push('/');
+            router.refresh();
+        } catch (err) {
+            setError('Failed to create guest session');
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div style={{
             minHeight: '100vh',
@@ -267,14 +302,23 @@ export default function LoginPage() {
 
                 {/* Guest Mode */}
                 <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                    <Link href="/" style={{
-                        fontSize: '14px',
-                        color: '#666',
-                        textDecoration: 'none',
-                        transition: 'color 0.2s'
-                    }}>
-                        Continue as Guest →
-                    </Link>
+                    <button
+                        onClick={handleGuestLogin}
+                        disabled={isLoading}
+                        style={{
+                            fontSize: '14px',
+                            color: isLoading ? '#999' : '#666',
+                            textDecoration: 'none',
+                            transition: 'color 0.2s',
+                            background: 'none',
+                            border: 'none',
+                            cursor: isLoading ? 'not-allowed' : 'pointer',
+                        }}
+                        onMouseEnter={(e) => !isLoading && (e.currentTarget.style.color = '#000')}
+                        onMouseLeave={(e) => !isLoading && (e.currentTarget.style.color = '#666')}
+                    >
+                        {isLoading ? 'Creating guest session...' : 'Continue as Guest →'}
+                    </button>
                 </div>
             </div>
         </div>
