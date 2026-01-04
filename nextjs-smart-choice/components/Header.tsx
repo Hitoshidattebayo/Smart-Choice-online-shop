@@ -4,11 +4,13 @@ import { useSession, signOut, signIn } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Search, User, Heart, ShoppingCart, X, Minus, Plus, LogOut, Package, Settings } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function Header() {
     const { data: session } = useSession();
+    const router = useRouter();
     const [showAccountMenu, setShowAccountMenu] = useState(false);
     // const [showCartDropdown, setShowCartDropdown] = useState(false); // Refactored to global context
     const accountMenuRef = useRef<HTMLDivElement>(null);
@@ -481,24 +483,43 @@ export default function Header() {
                                                     <span>Total:</span>
                                                     <span>${cartTotal}</span>
                                                 </div>
-                                                <Link href="/checkout" style={{ textDecoration: 'none' }}>
-                                                    <button
-                                                        onClick={() => closeCart()}
-                                                        style={{
-                                                            width: '100%',
-                                                            padding: '12px',
-                                                            backgroundColor: '#000',
-                                                            color: '#fff',
-                                                            border: 'none',
-                                                            borderRadius: '6px',
-                                                            fontSize: '14px',
-                                                            fontWeight: '600',
-                                                            cursor: 'pointer'
-                                                        }}
-                                                    >
-                                                        Proceed to Checkout
-                                                    </button>
-                                                </Link>
+                                                <button
+                                                    onClick={async () => {
+                                                        closeCart();
+                                                        if (session) {
+                                                            router.push('/checkout');
+                                                        } else {
+                                                            try {
+                                                                const response = await fetch('/api/auth/guest', { method: 'POST' });
+                                                                const data = await response.json();
+                                                                if (data.success && data.user) {
+                                                                    await signIn('credentials', {
+                                                                        email: `guest_${data.user.id}@temp.local`,
+                                                                        password: 'guest_temp',
+                                                                        redirect: false,
+                                                                    });
+                                                                    router.push('/checkout');
+                                                                    router.refresh();
+                                                                }
+                                                            } catch (error) {
+                                                                console.error('Failed to create guest session:', error);
+                                                            }
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        width: '100%',
+                                                        padding: '12px',
+                                                        backgroundColor: '#000',
+                                                        color: '#fff',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        fontSize: '14px',
+                                                        fontWeight: '600',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    Proceed to Checkout
+                                                </button>
                                             </div>
                                         </>
                                     )}

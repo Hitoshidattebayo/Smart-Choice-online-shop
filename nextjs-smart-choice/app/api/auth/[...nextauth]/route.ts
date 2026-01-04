@@ -82,7 +82,7 @@ const handler = NextAuth({
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.isGuest = token.isGuest as boolean;
-                session.user.guestNumber = token.guestNumber as number | null;
+                session.user.guestNumber = token.guestNumber as string | null;
             }
             return session;
         },

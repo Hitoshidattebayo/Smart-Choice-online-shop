@@ -30,7 +30,7 @@ model User {
   email       String?  @unique
   password    String?  // Hashed password
   isGuest     Boolean  @default(false)
-  guestNumber Int?     @unique
+  guestNumber String?  @unique // "A1b2" format
   orders      Order[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

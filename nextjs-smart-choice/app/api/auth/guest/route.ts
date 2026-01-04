@@ -3,21 +3,39 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
     try {
-        // Get the highest guest number currently in use
-        const lastGuest = await prisma.user.findFirst({
-            where: { isGuest: true },
-            orderBy: { guestNumber: 'desc' },
-            select: { guestNumber: true }
-        });
+        // Generate a unique 4-character alphanumeric guest ID
+        let guestNumber = '';
+        let isUnique = false;
+        let attempts = 0;
 
-        const nextGuestNumber = (lastGuest?.guestNumber || 0) + 1;
+        while (!isUnique && attempts < 10) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            guestNumber = '';
+            for (let i = 0; i < 4; i++) {
+                guestNumber += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            // Check if this guestNumber exists
+            const existing = await prisma.user.findUnique({
+                where: { guestNumber }
+            });
+
+            if (!existing) {
+                isUnique = true;
+            }
+            attempts++;
+        }
+
+        if (!isUnique) {
+            throw new Error('Failed to generate unique guest ID');
+        }
 
         // Create guest user
         const guestUser = await prisma.user.create({
             data: {
-                name: `Зочин#${nextGuestNumber}`,
+                name: `Зочин#${guestNumber}`,
                 isGuest: true,
-                guestNumber: nextGuestNumber,
+                guestNumber: guestNumber,
                 email: null,
                 password: null,
             }
