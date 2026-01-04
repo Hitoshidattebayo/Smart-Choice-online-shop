@@ -20,6 +20,7 @@ export default async function AdminPage({
             ],
         },
         orderBy: { createdAt: 'desc' },
+        include: { items: true },
     });
 
     async function payAction(formData: FormData) {
@@ -61,8 +62,8 @@ export default async function AdminPage({
                                 <th className="p-4">Reference</th>
                                 <th className="p-4">Date</th>
                                 <th className="p-4">Customer</th>
-                                <th className="p-4">Product</th>
-                                <th className="p-4">Amount</th>
+                                <th className="p-4">Items</th>
+                                <th className="p-4">Total</th>
                                 <th className="p-4">Status</th>
                                 <th className="p-4 text-right">Actions</th>
                             </tr>
@@ -85,13 +86,17 @@ export default async function AdminPage({
                                             <div className="font-medium">{order.customerName}</div>
                                             <div className="text-xs text-muted-foreground">{order.phoneNumber}</div>
                                         </td>
-                                        <td className="p-4">{order.productName}</td>
-                                        <td className="p-4">{order.amount.toLocaleString()} ₮</td>
+                                        <td className="p-4">
+                                            {order.items.length > 0
+                                                ? `${order.items[0].productName} ${order.items.length > 1 ? `+${order.items.length - 1}` : ''}`
+                                                : 'No items'}
+                                        </td>
+                                        <td className="p-4">{order.totalAmount.toLocaleString()} ₮</td>
                                         <td className="p-4">
                                             <span
                                                 className={`inline-flex px-2 py-1 rounded-full text-xs font-bold ${order.status === 'PAID'
-                                                        ? 'bg-success/10 text-success'
-                                                        : 'bg-warning/10 text-warning'
+                                                    ? 'bg-success/10 text-success'
+                                                    : 'bg-warning/10 text-warning'
                                                     }`}
                                             >
                                                 {order.status}
