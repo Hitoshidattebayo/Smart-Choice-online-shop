@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/auth';
 import { generatePaymentReference } from '@/lib/payment-reference';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
@@ -37,7 +38,7 @@ export async function createCartOrder(formData: any) {
     // Changing approach: This action will be called with a plain object from the client component
 
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         const userId = session?.user?.id || null;
         const paymentReference = await generatePaymentReference();
 
@@ -82,7 +83,7 @@ export async function createOrderSimple(formData: FormData) {
         throw new Error("Missing required fields");
     }
 
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     const userId = session?.user?.id || null;
     const paymentReference = await generatePaymentReference();
 

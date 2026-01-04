@@ -5,8 +5,10 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { authOptions } from '@/lib/auth';
+
 export default async function OrderDetailsPage({ params }: { params: { orderId: string } }) {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     // Note: Next.js 15 might require awaiting params also, but in current setup it should be fine. 
     // In strict environments, we assume params is accessible.
