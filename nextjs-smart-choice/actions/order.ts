@@ -109,3 +109,16 @@ export async function createOrderSimple(formData: FormData) {
 
     redirect(`/checkout/success?ref=${paymentReference}`);
 }
+
+export async function markAsPaid(orderId: string) {
+    try {
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { status: 'PAID' },
+        });
+        // revalidatePath('/admin'); // Optional: triggers error if imported dynamically
+    } catch (error) {
+        console.error('Failed to mark as paid', error);
+        throw new Error('Failed to update order');
+    }
+}
