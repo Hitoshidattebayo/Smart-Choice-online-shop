@@ -5,13 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-interface Order {
+interface OrderItem {
     id: string;
     productName: string;
-    amount: number;
+    quantity: number;
+    price: number;
+    image?: string;
+}
+
+interface Order {
+    id: string;
+    totalAmount: number;
     status: string;
     paymentReference: string;
     createdAt: string;
+    items: OrderItem[];
 }
 
 export default function OrdersPage() {
@@ -24,7 +32,6 @@ export default function OrdersPage() {
         if (status === 'unauthenticated') {
             router.push('/login');
         } else if (status === 'authenticated' && session?.user?.id) {
-            // Fetch orders for the logged-in user (guest or registered)
             fetchOrders(session.user.id);
         }
     }, [status, session, router]);
@@ -71,32 +78,42 @@ export default function OrdersPage() {
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {orders.map((order) => (
-                        <div key={order.id} style={{
-                            padding: '20px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            border: '1px solid #e0e0e0',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                <h3 style={{ fontWeight: '600', fontSize: '16px' }}>{order.productName}</h3>
-                                <span style={{
-                                    padding: '4px 12px',
-                                    borderRadius: '4px',
-                                    fontSize: '12px',
-                                    fontWeight: '600',
-                                    backgroundColor: order.status === 'PAID' ? '#d4edda' : '#fff3cd',
-                                    color: order.status === 'PAID' ? '#155724' : '#856404'
-                                }}>
-                                    {order.status}
-                                </span>
+                        <Link href={`/account/orders/${order.id}`} key={order.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <div style={{
+                                padding: '20px',
+                                backgroundColor: '#fff',
+                                borderRadius: '8px',
+                                border: '1px solid #e0e0e0',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                            }} className="hover:shadow-md">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                    <h3 style={{ fontWeight: '600', fontSize: '16px' }}>
+                                        Order #{order.paymentReference.slice(0, 8)}...
+                                    </h3>
+                                    <span style={{
+                                        padding: '4px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        backgroundColor: order.status === 'PAID' ? '#d4edda' : '#fff3cd',
+                                        color: order.status === 'PAID' ? '#155724' : '#856404'
+                                    }}>
+                                        {order.status}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: '14px', color: '#666' }}>
+                                    <p style={{ marginBottom: '4px' }}>
+                                        <strong>Items:</strong> {order.items?.length > 0 ? (
+                                            `${order.items[0].productName} ${order.items.length > 1 ? `+ ${order.items.length - 1} more` : ''}`
+                                        ) : 'No items'}
+                                    </p>
+                                    <p>Amount: <strong>{order.totalAmount?.toLocaleString() ?? 0} ₮</strong></p>
+                                    <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                </div>
                             </div>
-                            <div style={{ fontSize: '14px', color: '#666' }}>
-                                <p>Amount: <strong>{order.amount.toLocaleString()} ₮</strong></p>
-                                <p>Reference: <strong>{order.paymentReference}</strong></p>
-                                <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                            </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}

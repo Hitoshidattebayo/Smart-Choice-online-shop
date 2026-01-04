@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
+import { createCartOrder } from '@/actions/order';
 
 export default function CheckoutPage() {
     const { cart, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -27,16 +28,33 @@ export default function CheckoutPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // ... (existing imports)
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+            const result = await createCartOrder({
+                customerName: `${formData.firstName} ${formData.lastName}`,
+                phoneNumber: formData.phone,
+                email: formData.email, // Ensure email field is in the form or handle undefined
+                totalAmount: cartTotal,
+                items: cart
+            });
 
-        // Clear cart and redirect
-        clearCart();
-        router.push('/order-success');
+            if (result.success) {
+                clearCart();
+                router.push(`/checkout/success?ref=${result.paymentReference}`);
+            } else {
+                alert('Failed to create order. Please try again.');
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('An unexpected error occurred.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (cart.length === 0) {

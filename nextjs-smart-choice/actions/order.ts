@@ -6,63 +6,70 @@ import { generatePaymentReference } from '@/lib/payment-reference';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 
+// Define CartItem type locally to avoid circular deps or complex imports
+interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+}
+
 const OrderSchema = z.object({
     customerName: z.string().min(2, "Name is required"),
     phoneNumber: z.string().min(8, "Phone number is required"),
     email: z.string().email().optional().or(z.literal("")),
-    productId: z.string(),
-    productName: z.string(),
-    amount: z.number(),
+    items: z.array(z.object({
+        productId: z.string(),
+        productName: z.string(),
+        price: z.number(),
+        quantity: z.number(),
+        image: z.string().optional(),
+    })),
+    totalAmount: z.number(),
 });
 
-export async function createOrder(prevState: any, formData: FormData) {
-    const validatedFields = OrderSchema.safeParse({
-        customerName: formData.get('customerName'),
-        phoneNumber: formData.get('phoneNumber'),
-        email: formData.get('email'),
-        productId: formData.get('productId'),
-        productName: formData.get('productName'),
-        amount: Number(formData.get('amount')),
-    });
+export async function createCartOrder(formData: any) {
+    // Note: formData here is expected to be a plain object, not FormData, 
+    // because we're passing complex arrays from the client.
+    // Or we can parse json string from FormData.
 
-    if (!validatedFields.success) {
-        return {
-            errors: validatedFields.error.flatten().fieldErrors,
-            message: 'Missing Fields. Failed to Create Order.',
-        };
-    }
-
-    const { customerName, phoneNumber, email, productId, productName, amount } = validatedFields.data;
+    // Changing approach: This action will be called with a plain object from the client component
 
     try {
-        // Get current session to link order to user
         const session = await getServerSession();
         const userId = session?.user?.id || null;
-
         const paymentReference = await generatePaymentReference();
 
-        await prisma.order.create({
+        const order = await prisma.order.create({
             data: {
-                customerName,
-                phoneNumber,
-                email: email || undefined,
-                productId,
-                productName,
-                amount,
+                customerName: formData.customerName,
+                phoneNumber: formData.phoneNumber,
+                email: formData.email,
+                totalAmount: formData.totalAmount,
                 status: 'PENDING_PAYMENT',
                 paymentReference,
                 userId: userId || undefined,
-            },
+                items: {
+                    create: formData.items.map((item: CartItem) => ({
+                        productId: item.id,
+                        productName: item.name,
+                        price: item.price,
+                        quantity: item.quantity,
+                        image: item.image,
+                    }))
+                }
+            }
         });
 
+        return { success: true, orderId: order.id, paymentReference };
     } catch (error) {
-        console.error('Database Error:', error);
-        return {
-            message: 'Database Error: Failed to Create Order.',
-        };
+        console.error('Order creation failed:', error);
+        return { success: false, error: 'Failed to create order' };
     }
 }
 
+// Keeping legacy support for single-item buy now if needed, updated to new schema
 export async function createOrderSimple(formData: FormData) {
     const customerName = formData.get('customerName') as string;
     const phoneNumber = formData.get('phoneNumber') as string;
@@ -75,10 +82,8 @@ export async function createOrderSimple(formData: FormData) {
         throw new Error("Missing required fields");
     }
 
-    // Get current session to link order to user
     const session = await getServerSession();
     const userId = session?.user?.id || null;
-
     const paymentReference = await generatePaymentReference();
 
     await prisma.order.create({
@@ -86,26 +91,21 @@ export async function createOrderSimple(formData: FormData) {
             customerName,
             phoneNumber,
             email: email || undefined,
-            productId,
-            productName,
-            amount,
+            totalAmount: amount, // Mapped from amount
             status: 'PENDING_PAYMENT',
             paymentReference,
             userId: userId || undefined,
+            items: {
+                create: [{
+                    productId,
+                    productName,
+                    price: amount,
+                    quantity: 1,
+                    image: '', // No image in simple flow currently
+                }]
+            }
         },
     });
 
     redirect(`/checkout/success?ref=${paymentReference}`);
-}
-
-export async function markAsPaid(orderId: string) {
-    try {
-        await prisma.order.update({
-            where: { id: orderId },
-            data: { status: 'PAID' },
-        });
-    } catch (error) {
-        console.error('Failed to mark as paid', error);
-        throw new Error('Failed to update order');
-    }
 }

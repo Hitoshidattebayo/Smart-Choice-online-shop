@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
         const orders = await prisma.order.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+            include: { items: true }
         });
 
         return NextResponse.json({ orders });
