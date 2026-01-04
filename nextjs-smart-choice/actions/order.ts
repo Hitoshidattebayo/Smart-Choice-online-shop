@@ -111,15 +111,84 @@ export async function createOrderSimple(formData: FormData) {
     redirect(`/checkout/success?ref=${paymentReference}`);
 }
 
+// ... (previous code)
+
 export async function markAsPaid(orderId: string) {
     try {
         await prisma.order.update({
             where: { id: orderId },
             data: { status: 'PAID' },
         });
-        // revalidatePath('/admin'); // Optional: triggers error if imported dynamically
+        // revalidatePath('/admin');
     } catch (error) {
         console.error('Failed to mark as paid', error);
         throw new Error('Failed to update order');
     }
 }
+
+export async function moveToTrash(orderId: string) {
+    try {
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { deletedAt: new Date() },
+        });
+    } catch (error) {
+        console.error('Failed to move to trash', error);
+        throw new Error('Failed to update order');
+    }
+}
+
+export async function restoreFromTrash(orderId: string) {
+    try {
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { deletedAt: null },
+        });
+    } catch (error) {
+        console.error('Failed to restore order', error);
+        throw new Error('Failed to update order');
+    }
+}
+
+export async function deletePermanently(orderId: string) {
+    try {
+        // First delete related items (if cascade isn't set in prisma, but it is implicitly for relation mode prisma usually, but let's be safe if needed. 
+        // Actually Prisma handles Cascade if configured or if we use delete. OrderItem usually cascades.)
+        // Ensure cascading delete in schema or manual delete.
+        // Schema: items OrderItem[] -- implicit. 
+        // Let's assume OnDelete Cascade is handled by DB or Prisma.
+        // Ideally we should have defined @relation(onDelete: Cascade) in schema.
+        // Let's check schema later. For now, try delete.
+        await prisma.orderItem.deleteMany({ where: { orderId } }); // Manually clean items first just in case
+        await prisma.order.delete({
+            where: { id: orderId },
+        });
+    } catch (error) {
+        console.error('Failed to delete order permanently', error);
+        throw new Error('Failed to delete order');
+    }
+}
+
+export async function cleanTrash() {
+    try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        // Find old deleted orders
+        const oldOrders = await prisma.order.findMany({
+            where: {
+                deletedAt: {
+                    lt: thirtyDaysAgo
+                }
+            },
+            select: { id: true }
+        });
+
+        for (const order of oldOrders) {
+            await deletePermanently(order.id);
+        }
+    } catch (error) {
+        console.error('Failed to clean trash', error);
+    }
+}
+

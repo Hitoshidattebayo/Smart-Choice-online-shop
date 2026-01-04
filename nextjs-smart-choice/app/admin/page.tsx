@@ -1,10 +1,9 @@
 import { prisma } from '@/lib/prisma';
-import { markAsPaid } from '@/actions/order';
-import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import AdminLoginForm from '@/components/AdminLoginForm';
 import { LogOut } from 'lucide-react';
 import { logoutAdmin } from '@/actions/admin-auth';
+import AdminDashboard from '@/components/AdminDashboard'; // Import Dashboard
 
 // Force dynamic to ensure we see latest orders
 export const dynamic = 'force-dynamic';
@@ -23,23 +22,18 @@ export default async function AdminPage({
 
     const query = searchParams.q || '';
 
+    // Fetch all matching orders (active and deleted are filtered on client, but we fetch all matching the query text)
     const orders = await prisma.order.findMany({
         where: {
             OR: [
-                { paymentReference: { contains: query } }, // SQLite doesn't support case-insensitive mode easily without raw query, but standard contains works for exact matches usually.
+                { paymentReference: { contains: query } },
                 { customerName: { contains: query } },
             ],
+            // Note: We deliberately do NOT filter by 'deletedAt' here because we want to show deleted items in the Trash view.
         },
         orderBy: { createdAt: 'desc' },
         include: { items: true },
     });
-
-    async function payAction(formData: FormData) {
-        'use server';
-        const id = formData.get('id') as string;
-        await markAsPaid(id);
-        revalidatePath('/admin');
-    }
 
     return (
         <div className="container py-12">
@@ -68,78 +62,12 @@ export default async function AdminPage({
                     />
                     <button type="submit" className="btn btn-outline">
                         Search
-                    </button>
+                    </button> {/* Tip: Searching works for both Active and Trash */}
                 </form>
             </div>
 
-            <div className="card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-muted text-muted-foreground font-medium border-b">
-                            <tr>
-                                <th className="p-4">Reference</th>
-                                <th className="p-4">Date</th>
-                                <th className="p-4">Customer</th>
-                                <th className="p-4">Items</th>
-                                <th className="p-4">Total</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {orders.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="p-8 text-center text-muted-foreground">
-                                        No orders found.
-                                    </td>
-                                </tr>
-                            ) : (
-                                orders.map((order) => (
-                                    <tr key={order.id} className="hover:bg-muted/50">
-                                        <td className="p-4 font-mono font-medium">{order.paymentReference}</td>
-                                        <td className="p-4 text-muted-foreground">
-                                            {new Date(order.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="font-medium">{order.customerName}</div>
-                                            <div className="text-xs text-muted-foreground">{order.phoneNumber}</div>
-                                        </td>
-                                        <td className="p-4">
-                                            {order.items.length > 0
-                                                ? `${order.items[0].productName} ${order.items.length > 1 ? `+${order.items.length - 1}` : ''}`
-                                                : 'No items'}
-                                        </td>
-                                        <td className="p-4">{order.totalAmount.toLocaleString()} ₮</td>
-                                        <td className="p-4">
-                                            <span
-                                                className={`inline-flex px-2 py-1 rounded-full text-xs font-bold ${order.status === 'PAID'
-                                                    ? 'bg-success/10 text-success'
-                                                    : 'bg-warning/10 text-warning'
-                                                    }`}
-                                            >
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 text-right">
-                                            {order.status !== 'PAID' && (
-                                                <form action={payAction}>
-                                                    <input type="hidden" name="id" value={order.id} />
-                                                    <button
-                                                        type="submit"
-                                                        className="text-xs btn btn-outline border-success text-success hover:bg-success hover:text-white"
-                                                    >
-                                                        Mark Paid
-                                                    </button>
-                                                </form>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <AdminDashboard orders={orders as any} />
+            {/* Cast to any to avoid strict type mismatch if prisma types aren't fully synced locally yet, mostly due to deletedAt optional field */}
         </div>
     );
 }

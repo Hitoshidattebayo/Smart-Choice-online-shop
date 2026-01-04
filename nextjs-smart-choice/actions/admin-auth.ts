@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const ADMIN_PIN = process.env.ADMIN_PIN || '1234'; // Fallback for dev
+const ADMIN_PIN = process.env.ADMIN_PIN || '#Tsomoo5000'; // Default requested by user
 
 export async function loginAdmin(formData: FormData) {
     const pin = formData.get('pin') as string;
