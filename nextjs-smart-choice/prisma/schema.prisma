@@ -13,6 +13,7 @@ model Order {
   customerName     String
   phoneNumber      String
   email            String?
+  address          String? // Added address field
   totalAmount      Float
   status           String      @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAID, CANCELLED
   paymentReference String      @unique

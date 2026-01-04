@@ -30,7 +30,14 @@ const OrderSchema = z.object({
     totalAmount: z.number(),
 });
 
-export async function createCartOrder(formData: any) {
+export async function createCartOrder(data: {
+    customerName: string;
+    phoneNumber: string;
+    email: string;
+    address: string; // Added address
+    totalAmount: number;
+    items: any[];
+}) {
     // Note: formData here is expected to be a plain object, not FormData, 
     // because we're passing complex arrays from the client.
     // Or we can parse json string from FormData.
@@ -40,27 +47,30 @@ export async function createCartOrder(formData: any) {
     try {
         const session = await getServerSession(authOptions);
         const userId = session?.user?.id || null;
-        const paymentReference = await generatePaymentReference();
+
+        // Generate unique payment reference
+        const paymentReference = `SC-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
 
         const order = await prisma.order.create({
             data: {
-                customerName: formData.customerName,
-                phoneNumber: formData.phoneNumber,
-                email: formData.email,
-                totalAmount: formData.totalAmount,
-                status: 'PENDING_PAYMENT',
+                customerName: data.customerName,
+                phoneNumber: data.phoneNumber,
+                email: data.email || null,
+                address: data.address, // Save address
+                totalAmount: data.totalAmount,
                 paymentReference,
-                userId: userId || undefined,
+                userId,
+                status: 'PENDING_PAYMENT',
                 items: {
-                    create: formData.items.map((item: CartItem) => ({
+                    create: data.items.map((item: any) => ({
                         productId: item.id,
                         productName: item.name,
-                        price: item.price,
                         quantity: item.quantity,
+                        price: item.price,
                         image: item.image,
-                    }))
-                }
-            }
+                    })),
+                },
+            },
         });
 
         return { success: true, orderId: order.id, paymentReference };

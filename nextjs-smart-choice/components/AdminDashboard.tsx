@@ -19,7 +19,8 @@ interface Order {
     customerName: string;
     phoneNumber: string;
     email: string | null;
-    status: string;
+    address: string | null; // Added address
+    status: string | null;
     totalAmount: number;
     paymentReference: string | null;
     createdAt: Date;
@@ -148,6 +149,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                     <p className="text-lg font-medium">{selectedOrder.customerName}</p>
                                     <p className="text-gray-600">📞 {selectedOrder.phoneNumber}</p>
                                     <p className="text-gray-600">✉️ {selectedOrder.email || 'No email'}</p>
+                                    <p className="text-gray-600 mt-2">📍 <span className="font-semibold">Address:</span><br />{selectedOrder.address || 'No address provided'}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Status</h3>
