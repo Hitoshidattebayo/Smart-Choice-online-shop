@@ -6,6 +6,8 @@ import { authOptions } from '@/lib/auth';
 import { generatePaymentReference } from '@/lib/payment-reference';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
+import { sendEmail } from '@/lib/email';
+import { generateAdminOrderNotificationHTML, generateAdminOrderNotificationText } from '@/lib/email-templates';
 
 // Define CartItem type locally to avoid circular deps or complex imports
 interface CartItem {
@@ -71,7 +73,60 @@ export async function createCartOrder(data: {
                     })),
                 },
             },
+            include: {
+                items: true, // Include items for email template
+            },
         });
+
+        // Send admin notification email (non-blocking - don't fail order if email fails)
+        try {
+            const adminEmail = process.env.ADMIN_EMAIL;
+
+            if (adminEmail) {
+                await sendEmail({
+                    to: adminEmail,
+                    subject: `🎉 Шинэ захиалга #${paymentReference} - Smart Choice`,
+                    html: generateAdminOrderNotificationHTML({
+                        orderId: order.id,
+                        customerName: order.customerName,
+                        phoneNumber: order.phoneNumber,
+                        email: order.email || undefined,
+                        address: order.address || '',
+                        totalAmount: order.totalAmount,
+                        items: order.items.map(item => ({
+                            productName: item.productName,
+                            quantity: item.quantity,
+                            price: item.price,
+                            image: item.image || undefined,
+                        })),
+                        paymentReference: order.paymentReference,
+                        createdAt: order.createdAt,
+                    }),
+                    text: generateAdminOrderNotificationText({
+                        orderId: order.id,
+                        customerName: order.customerName,
+                        phoneNumber: order.phoneNumber,
+                        email: order.email || undefined,
+                        address: order.address || '',
+                        totalAmount: order.totalAmount,
+                        items: order.items.map(item => ({
+                            productName: item.productName,
+                            quantity: item.quantity,
+                            price: item.price,
+                            image: item.image || undefined,
+                        })),
+                        paymentReference: order.paymentReference,
+                        createdAt: order.createdAt,
+                    }),
+                });
+                console.log('✅ Admin notification email sent for order:', order.id);
+            } else {
+                console.warn('⚠️ ADMIN_EMAIL not configured. Skipping admin notification.');
+            }
+        } catch (emailError) {
+            // Log error but don't fail the order creation
+            console.error('❌ Failed to send admin notification email:', emailError);
+        }
 
         return { success: true, orderId: order.id, paymentReference };
     } catch (error) {
