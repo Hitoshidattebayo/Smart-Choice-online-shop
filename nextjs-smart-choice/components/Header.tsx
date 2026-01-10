@@ -64,12 +64,9 @@ export default function Header() {
 
                     {/* Navigation */}
                     <nav className="nav">
-                        <a href="#" className="nav-link">Бүх дэлгүүр</a>
-                        <a href="#" className="nav-link">Шилдэг борлуулалт</a>
-                        <a href="#" className="nav-link">Active QX</a>
-                        <a href="#" className="nav-link">Гар урлал</a>
-                        <a href="#" className="nav-link">Хүүхдийн</a>
-                        <a href="#" className="nav-link">Бидний тухай</a>
+                        <Link href="/" className="nav-link">Home</Link>
+                        <Link href="/about" className="nav-link">About Us</Link>
+                        <Link href="/contact" className="nav-link">Contact</Link>
                     </nav>
 
                     {/* Search and Icons */}
