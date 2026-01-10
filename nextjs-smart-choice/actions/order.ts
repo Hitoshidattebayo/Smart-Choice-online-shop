@@ -7,7 +7,12 @@ import { generatePaymentReference } from '@/lib/payment-reference';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { sendEmail } from '@/lib/email';
-import { generateAdminOrderNotificationHTML, generateAdminOrderNotificationText } from '@/lib/email-templates';
+import {
+    generateAdminOrderNotificationHTML,
+    generateAdminOrderNotificationText,
+    generateCustomerConfirmationHTML,
+    generateCustomerConfirmationText
+} from '@/lib/email-templates';
 
 // Define CartItem type locally to avoid circular deps or complex imports
 interface CartItem {
@@ -180,10 +185,64 @@ export async function createOrderSimple(formData: FormData) {
 
 export async function markAsPaid(orderId: string) {
     try {
-        await prisma.order.update({
+        // Update order status to PAID
+        const order = await prisma.order.update({
             where: { id: orderId },
             data: { status: 'PAID' },
+            include: {
+                items: true, // Include items for email template
+            },
         });
+
+        // Send customer confirmation email (non-blocking)
+        try {
+            // Only send if customer provided email
+            if (order.email) {
+                await sendEmail({
+                    to: order.email,
+                    subject: `✅ Захиалга баталгаажлаа #${order.paymentReference} - Smart Choice`,
+                    html: generateCustomerConfirmationHTML({
+                        orderId: order.id,
+                        customerName: order.customerName,
+                        phoneNumber: order.phoneNumber,
+                        email: order.email,
+                        address: order.address || '',
+                        totalAmount: order.totalAmount,
+                        items: order.items.map(item => ({
+                            productName: item.productName,
+                            quantity: item.quantity,
+                            price: item.price,
+                            image: item.image || undefined,
+                        })),
+                        paymentReference: order.paymentReference,
+                        createdAt: order.createdAt,
+                    }),
+                    text: generateCustomerConfirmationText({
+                        orderId: order.id,
+                        customerName: order.customerName,
+                        phoneNumber: order.phoneNumber,
+                        email: order.email,
+                        address: order.address || '',
+                        totalAmount: order.totalAmount,
+                        items: order.items.map(item => ({
+                            productName: item.productName,
+                            quantity: item.quantity,
+                            price: item.price,
+                            image: item.image || undefined,
+                        })),
+                        paymentReference: order.paymentReference,
+                        createdAt: order.createdAt,
+                    }),
+                });
+                console.log('✅ Customer confirmation email sent for order:', order.id);
+            } else {
+                console.log('⚠️ No customer email provided, skipping confirmation email');
+            }
+        } catch (emailError) {
+            // Log error but don't fail the order status update
+            console.error('❌ Failed to send customer confirmation email:', emailError);
+        }
+
         // revalidatePath('/admin');
     } catch (error) {
         console.error('Failed to mark as paid', error);
