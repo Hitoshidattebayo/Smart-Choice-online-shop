@@ -102,7 +102,7 @@ export default function RootLayout({
 
                                 {/* Footer Bottom */}
                                 <div className="footer-bottom">
-                                    <p>&copy; 2026 Smart Choice. Бүх эрх хуулиар хамгаалагдсан. | v1.0 - Deployed ✓</p>
+                                    <p>&copy; 2026 Smart Choice. Бүх эрх хуулиар хамгаалагдсан.</p>
                                     <p>Таны онлайн дэлгүүр</p>
                                 </div>
                             </div>
