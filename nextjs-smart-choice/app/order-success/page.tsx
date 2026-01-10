@@ -19,17 +19,17 @@ export default function OrderSuccessPage() {
                     <CheckCircle className="w-10 h-10 text-green-600" />
                 </div>
 
-                <h1 className="text-3xl font-bold mb-4 text-gray-900">Order Confirmed!</h1>
+                <h1 className="text-3xl font-bold mb-4 text-gray-900">Захиалга баталгаажлаа!</h1>
                 <p className="text-gray-600 mb-8 leading-relaxed">
-                    Thank you for your purchase. We have received your order and will begin processing it right away. A confirmation email has been sent to you.
+                    Худалдан авалт хийсэнд баярлалаа. Бид таны захиалгыг хүлээн авсан бөгөөд удахгүй бэлтгэж эхлэх болно. Баталгаажуулах имэйл танд илгээгдлээ.
                 </p>
 
                 <div className="space-y-3">
                     <Link href="/" className="block w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">
-                        Continue Shopping
+                        Дэлгүүр хэсэх
                     </Link>
                     <Link href="/account" className="block w-full bg-gray-100 text-gray-900 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                        View Order Details
+                        Захиалгын дэлгэрэнгүйг харах
                     </Link>
                 </div>
             </div>

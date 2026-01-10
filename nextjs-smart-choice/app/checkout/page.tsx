@@ -62,10 +62,10 @@ export default function CheckoutPage() {
         return (
             <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-                    <p className="text-gray-600 mb-8">Add some items to start the checkout process.</p>
+                    <h2 className="text-2xl font-bold mb-4">Таны сагс хоосон байна</h2>
+                    <p className="text-gray-600 mb-8">Худалдан авалт хийхийн тулд бараа нэмнэ үү.</p>
                     <Link href="/" className="bg-black text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
-                        Continue Shopping
+                        Дэлгүүр хэсэх
                     </Link>
                 </div>
             </div>
@@ -75,7 +75,7 @@ export default function CheckoutPage() {
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="container mx-auto px-4">
-                <h1 className="text-3xl font-bold mb-8 text-center">Checkout</h1>
+                <h1 className="text-3xl font-bold mb-8 text-center">Төлбөр төлөх</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Column: Shipping Form */}
@@ -83,13 +83,13 @@ export default function CheckoutPage() {
                         <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
                             <div className="flex items-center gap-2 mb-6 border-b pb-4">
                                 <Truck className="text-black" />
-                                <h2 className="text-xl font-bold">Shipping Information</h2>
+                                <h2 className="text-xl font-bold">Хүргэлтийн мэдээлэл</h2>
                             </div>
 
                             <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Нэр</label>
                                         <div className="relative">
                                             <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                             <input
@@ -97,20 +97,20 @@ export default function CheckoutPage() {
                                                 name="firstName"
                                                 required
                                                 className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                                placeholder="John"
+                                                placeholder="Болд"
                                                 value={formData.firstName}
                                                 onChange={handleInputChange}
                                             />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Овог</label>
                                         <input
                                             type="text"
                                             name="lastName"
                                             required
                                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                            placeholder="Doe"
+                                            placeholder="Дорж"
                                             value={formData.lastName}
                                             onChange={handleInputChange}
                                         />
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Имэйл</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -133,7 +133,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Утасны дугаар</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -149,7 +149,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Хаяг</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
                                             name="address"
                                             required
                                             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                            placeholder="Street address, Apartment, etc."
+                                            placeholder="Байр, тоот гэх мэт..."
                                             value={formData.address}
                                             onChange={handleInputChange}
                                         />
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Хот</label>
                                         <select
                                             name="city"
                                             required
@@ -174,20 +174,20 @@ export default function CheckoutPage() {
                                             value={formData.city}
                                             onChange={handleInputChange}
                                         >
-                                            <option value="">Select City</option>
-                                            <option value="Ulaanbaatar">Ulaanbaatar</option>
-                                            <option value="Darkhan">Darkhan</option>
-                                            <option value="Erdenet">Erdenet</option>
+                                            <option value="">Хот сонгох</option>
+                                            <option value="Ulaanbaatar">Улаанбаатар</option>
+                                            <option value="Darkhan">Дархан</option>
+                                            <option value="Erdenet">Эрдэнэт</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">District</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Дүүрэг</label>
                                         <input
                                             type="text"
                                             name="district"
                                             required
                                             className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                            placeholder="District"
+                                            placeholder="Сүхбаатар дүүрэг"
                                             value={formData.district}
                                             onChange={handleInputChange}
                                         />
@@ -199,13 +199,13 @@ export default function CheckoutPage() {
                         <div className="bg-white rounded-2xl shadow-sm p-6">
                             <div className="flex items-center gap-2 mb-6 border-b pb-4">
                                 <CreditCard className="text-black" />
-                                <h2 className="text-xl font-bold">Payment Method</h2>
+                                <h2 className="text-xl font-bold">Төлбөрийн хэрэгсэл</h2>
                             </div>
 
                             <div className="space-y-3">
                                 <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
                                     <input type="radio" name="payment" defaultChecked className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">Credit Card / Debit Card</span>
+                                    <span className="ml-3 font-medium">Банкны карт</span>
                                 </label>
                                 <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
                                     <input type="radio" name="payment" className="w-5 h-5 text-black" />
@@ -217,7 +217,7 @@ export default function CheckoutPage() {
                                 </label>
                                 <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
                                     <input type="radio" name="payment" className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">Cash on Delivery</span>
+                                    <span className="ml-3 font-medium">Бэлнээр төлөх</span>
                                 </label>
                             </div>
                         </div>
@@ -226,7 +226,7 @@ export default function CheckoutPage() {
                     {/* Right Column: Order Summary */}
                     <div className="lg:col-span-5">
                         <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-                            <h2 className="text-xl font-bold mb-6 border-b pb-4">Order Summary</h2>
+                            <h2 className="text-xl font-bold mb-6 border-b pb-4">Захиалгын тойм</h2>
 
                             <div className="space-y-4 max-h-[400px] overflow-y-auto mb-6 pr-2">
                                 {cart.map((item) => (
@@ -236,14 +236,14 @@ export default function CheckoutPage() {
                                         </div>
                                         <div className="flex-1">
                                             <h3 className="text-sm font-medium line-clamp-2">{item.name}</h3>
-                                            <div className="text-xs text-gray-500 mt-1">Qty: {item.quantity}</div>
+                                            <div className="text-xs text-gray-500 mt-1">Тоо: {item.quantity}</div>
                                             <div className="flex items-center justify-between mt-1">
                                                 <span className="font-semibold text-sm">${item.price * item.quantity}</span>
                                                 <button
                                                     onClick={() => removeFromCart(item.id)}
                                                     className="text-red-500 hover:text-red-700 text-xs"
                                                 >
-                                                    Remove
+                                                    Устгах
                                                 </button>
                                             </div>
                                         </div>
@@ -253,15 +253,15 @@ export default function CheckoutPage() {
 
                             <div className="space-y-3 text-sm border-t pt-4">
                                 <div className="flex justify-between text-gray-600">
-                                    <span>Subtotal</span>
+                                    <span>Дэд дүн</span>
                                     <span>${cartTotal}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-600">
-                                    <span>Shipping</span>
-                                    <span>Free</span>
+                                    <span>Хүргэлт</span>
+                                    <span>Үнэгүй</span>
                                 </div>
                                 <div className="flex justify-between font-bold text-lg pt-2 border-t mt-2">
-                                    <span>Total</span>
+                                    <span>Нийт</span>
                                     <span>${cartTotal}</span>
                                 </div>
                             </div>
@@ -273,14 +273,14 @@ export default function CheckoutPage() {
                                 className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isSubmitting ? (
-                                    <>Processing...</>
+                                    <>Боловсруулж байна...</>
                                 ) : (
-                                    <>Place Order <CheckCircle size={20} /></>
+                                    <>Захиалах <CheckCircle size={20} /></>
                                 )}
                             </button>
 
                             <p className="text-xs text-gray-400 text-center mt-4">
-                                Secure Checkout. By checking out you agree to our Terms of Service.
+                                Төлбөр найдвартай хийгдэнэ. Та манай үйлчилгээний нөхцөлийг зөвшөөрч байна.
                             </p>
                         </div>
                     </div>

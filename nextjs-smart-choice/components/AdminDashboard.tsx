@@ -38,7 +38,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
     );
 
     async function handleAction(action: Function, orderId: string, refresh = true) {
-        if (!confirm('Are you sure?')) return;
+        if (!confirm('Та итгэлтэй байна уу?')) return;
         await action(orderId);
         if (refresh) {
             router.refresh();
@@ -47,7 +47,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
     }
 
     async function handleCleanTrash() {
-        if (!confirm('This will delete all orders in trash older than 30 days. Continue?')) return;
+        if (!confirm('Энэ нь 30 хоногоос дээш удсан бүх хогийг устгах болно. Үргэлжлүүлэх үү?')) return;
         await cleanTrash();
         router.refresh();
     }
@@ -60,18 +60,18 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                         onClick={() => setView('active')}
                         className={`px-4 py-2 rounded-md ${view === 'active' ? 'bg-black text-white' : 'bg-gray-100'}`}
                     >
-                        Active Orders
+                        Идэвхтэй захиалгууд
                     </button>
                     <button
                         onClick={() => setView('trash')}
                         className={`px-4 py-2 rounded-md flex items-center gap-2 ${view === 'trash' ? 'bg-red-600 text-white' : 'bg-gray-100'}`}
                     >
-                        <Trash2 size={16} /> Trash Bin
+                        <Trash2 size={16} /> Хогийн сав
                     </button>
                 </div>
                 {view === 'trash' && (
                     <button onClick={handleCleanTrash} className="text-sm text-red-500 hover:underline">
-                        Clean Old Trash
+                        Хуучин хогийг цэвэрлэх
                     </button>
                 )}
             </div>
@@ -81,19 +81,19 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                     <table className="w-full text-sm text-left">
                         <thead className="bg-gray-50 text-gray-500 font-medium border-b">
                             <tr>
-                                <th className="p-4">Ref</th>
-                                <th className="p-4">Date</th>
-                                <th className="p-4">Customer</th>
-                                <th className="p-4">Total</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Actions</th>
+                                <th className="p-4">Дугаар</th>
+                                <th className="p-4">Огноо</th>
+                                <th className="p-4">Харилцагч</th>
+                                <th className="p-4">Нийт дүн</th>
+                                <th className="p-4">Төлөв</th>
+                                <th className="p-4">Үйлдэл</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
                             {filteredOrders.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="p-8 text-center text-gray-400">
-                                        No orders found.
+                                        Захиалга олдсонгүй.
                                     </td>
                                 </tr>
                             ) : (
@@ -140,19 +140,19 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                         </button>
 
                         <div className="p-6">
-                            <h2 className="text-2xl font-bold mb-1">Order Details</h2>
+                            <h2 className="text-2xl font-bold mb-1">Захиалгын дэлгэрэнгүй</h2>
                             <p className="text-sm text-gray-500 font-mono mb-6">Ref: {selectedOrder.paymentReference}</p>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                 <div className="space-y-1">
-                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Customer</h3>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Харилцагч</h3>
                                     <p className="text-lg font-medium">{selectedOrder.customerName}</p>
                                     <p className="text-gray-600">📞 {selectedOrder.phoneNumber}</p>
-                                    <p className="text-gray-600">✉️ {selectedOrder.email || 'No email'}</p>
-                                    <p className="text-gray-600 mt-2">📍 <span className="font-semibold">Address:</span><br />{selectedOrder.address || 'No address provided'}</p>
+                                    <p className="text-gray-600">✉️ {selectedOrder.email || 'Имэйл байхгүй'}</p>
+                                    <p className="text-gray-600 mt-2">📍 <span className="font-semibold">Хаяг:</span><br />{selectedOrder.address || 'Хаяг байхгүй'}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Status</h3>
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Төлөв</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${selectedOrder.status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                             {selectedOrder.status}
@@ -165,7 +165,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                             </div>
 
                             <div className="border-t border-b py-4 mb-6">
-                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Items ({selectedOrder.items.length})</h3>
+                                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Бараанууд ({selectedOrder.items.length})</h3>
                                 <div className="space-y-4">
                                     {selectedOrder.items.map((item) => (
                                         <div key={item.id} className="flex items-center gap-4">
@@ -175,7 +175,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                                 </div>
                                             ) : (
                                                 <div className="w-16 h-16 rounded-md bg-gray-200 flex items-center justify-center text-gray-400">
-                                                    No Img
+                                                    Зураггүй
                                                 </div>
                                             )}
                                             <div className="flex-1">
@@ -189,7 +189,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                     ))}
                                 </div>
                                 <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                                    <span className="font-bold text-lg">Total</span>
+                                    <span className="font-bold text-lg">Нийт</span>
                                     <span className="font-bold text-xl">{selectedOrder.totalAmount.toLocaleString()} ₮</span>
                                 </div>
                             </div>
@@ -201,14 +201,14 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                             onClick={(e) => { e.stopPropagation(); handleAction(moveToTrash, selectedOrder.id); }}
                                             className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
                                         >
-                                            Delete (Trash)
+                                            Устгах (Хогийн сав)
                                         </button>
                                         {selectedOrder.status !== 'PAID' && (
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleAction(markAsPaid, selectedOrder.id); }}
                                                 className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2"
                                             >
-                                                <Check size={18} /> Confirm Payment
+                                                <Check size={18} /> Төлбөр баталгаажуулах
                                             </button>
                                         )}
                                     </>
@@ -218,13 +218,13 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                             onClick={(e) => { e.stopPropagation(); handleAction(deletePermanently, selectedOrder.id); }}
                                             className="px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors"
                                         >
-                                            Delete Permanently
+                                            Бүр мөсөн устгах
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); handleAction(restoreFromTrash, selectedOrder.id); }}
                                             className="px-6 py-2 bg-black hover:bg-gray-800 text-white rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2"
                                         >
-                                            <RotateCcw size={18} /> Restore Order
+                                            <RotateCcw size={18} /> Сэргээх
                                         </button>
                                     </>
                                 )}

@@ -114,10 +114,10 @@ export default function LoginPage() {
                         marginBottom: '0.5rem',
                         color: '#1a1a1a'
                     }}>
-                        Welcome Back
+                        Тавтай морилно уу
                     </h1>
                     <p style={{ color: '#666', fontSize: '15px' }}>
-                        Sign in to your account to continue
+                        Үргэлжлүүлэхийн тулд нэвтрэн орно уу
                     </p>
                 </div>
 
@@ -132,7 +132,7 @@ export default function LoginPage() {
                             fontWeight: '600',
                             color: '#333'
                         }}>
-                            Email Address
+                            Имэйл хаяг
                         </label>
                         <div style={{ position: 'relative' }}>
                             <Mail size={18} style={{
@@ -172,7 +172,7 @@ export default function LoginPage() {
                             fontWeight: '600',
                             color: '#333'
                         }}>
-                            Password
+                            Нууц үг
                         </label>
                         <div style={{ position: 'relative' }}>
                             <Lock size={18} style={{
@@ -246,7 +246,7 @@ export default function LoginPage() {
                             onMouseEnter={(e) => e.currentTarget.style.color = '#000'}
                             onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
                         >
-                            Forgot password?
+                            Нууц үг мартсан?
                         </a>
                     </div>
 
@@ -270,7 +270,7 @@ export default function LoginPage() {
                         onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = '#333')}
                         onMouseLeave={(e) => !isLoading && (e.currentTarget.style.backgroundColor = '#000')}
                     >
-                        {isLoading ? 'Signing in...' : 'Sign In'}
+                        {isLoading ? 'Нэвтэрч байна...' : 'Нэвтрэх'}
                     </button>
                 </form>
 
@@ -282,7 +282,7 @@ export default function LoginPage() {
                     gap: '1rem'
                 }}>
                     <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }} />
-                    <span style={{ color: '#999', fontSize: '14px' }}>or continue with</span>
+                    <span style={{ color: '#999', fontSize: '14px' }}>эсвэл</span>
                     <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }} />
                 </div>
 
@@ -315,47 +315,22 @@ export default function LoginPage() {
                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.84z" fill="#FBBC05" />
                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                         </svg>
-                        Sign in with Google
+                        Google-ээр нэвтрэх
                     </button>
 
-                    <button
-                        type="button"
-                        onClick={() => signIn('facebook', { callbackUrl: '/' })}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%',
-                            padding: '12px',
-                            backgroundColor: '#1877F2',
-                            border: 'none',
-                            borderRadius: '8px',
-                            fontSize: '15px',
-                            fontWeight: '600',
-                            color: '#fff',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#166fe5'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1877F2'}
-                    >
-                        <svg width="20" height="20" viewBox="0 0 24 24" style={{ marginRight: '10px', fill: '#fff' }}>
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                        Sign in with Facebook
-                    </button>
+
                 </div>
 
                 {/* Sign Up Link */}
                 <div style={{ textAlign: 'center' }}>
                     <p style={{ fontSize: '15px', color: '#666' }}>
-                        Don't have an account?{' '}
+                        Хаяг байхгүй юу?{' '}
                         <Link href="/signup" style={{
                             color: '#000',
                             fontWeight: '600',
                             textDecoration: 'none'
                         }}>
-                            Sign up
+                            Бүртгүүлэх
                         </Link>
                     </p>
                 </div>
@@ -377,7 +352,7 @@ export default function LoginPage() {
                         onMouseEnter={(e) => !isLoading && (e.currentTarget.style.color = '#000')}
                         onMouseLeave={(e) => !isLoading && (e.currentTarget.style.color = '#666')}
                     >
-                        {isLoading ? 'Creating guest session...' : 'Continue as Guest →'}
+                        {isLoading ? 'Зочны эрх үүсгэж байна...' : 'Зочноор үргэлжлүүлэх →'}
                     </button>
                 </div>
             </div>

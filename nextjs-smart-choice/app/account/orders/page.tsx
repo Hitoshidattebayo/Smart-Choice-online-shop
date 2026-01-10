@@ -51,28 +51,28 @@ export default function OrdersPage() {
     };
 
     if (status === 'loading' || loading) {
-        return <div className="container" style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
+        return <div className="container" style={{ padding: '40px', textAlign: 'center' }}>Уншиж байна...</div>;
     }
 
-    const userName = session?.user?.name || 'User';
+    const userName = session?.user?.name || 'Хэрэглэгч';
     const isGuest = session?.user?.isGuest || false;
 
     return (
         <div className="container" style={{ padding: '40px 20px' }}>
             <h1 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>
-                {isGuest ? `${userName}'s Orders` : 'My Orders'}
+                {isGuest ? 'Зочны захиалгууд' : 'Миний захиалгууд'}
             </h1>
             {isGuest && (
                 <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
-                    You're browsing as a guest. Your orders will be saved to this guest account.
+                    Та зочноор нэвтэрсэн байна. Таны захиалгууд энэ зочны хаяг дээр хадгалагдах болно.
                 </p>
             )}
 
             {orders.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f9f9f9', borderRadius: '8px', color: '#666' }}>
-                    <p>You haven't placed any orders yet.</p>
+                    <p>Танд одоогоор захиалга байхгүй байна.</p>
                     <Link href="/" style={{ display: 'inline-block', marginTop: '20px', color: '#000', textDecoration: 'underline' }}>
-                        Start Shopping
+                        Дэлгүүр хэсэх
                     </Link>
                 </div>
             ) : (
@@ -90,7 +90,7 @@ export default function OrdersPage() {
                             }} className="hover:shadow-md">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                                     <h3 style={{ fontWeight: '600', fontSize: '16px' }}>
-                                        Order #{order.paymentReference.slice(0, 8)}...
+                                        Захиалга #{order.paymentReference.slice(0, 8)}...
                                     </h3>
                                     <span style={{
                                         padding: '4px 12px',
@@ -105,12 +105,12 @@ export default function OrdersPage() {
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#666' }}>
                                     <p style={{ marginBottom: '4px' }}>
-                                        <strong>Items:</strong> {order.items?.length > 0 ? (
-                                            `${order.items[0].productName} ${order.items.length > 1 ? `+ ${order.items.length - 1} more` : ''}`
-                                        ) : 'No items'}
+                                        <strong>Бараанууд:</strong> {order.items?.length > 0 ? (
+                                            `${order.items[0].productName} ${order.items.length > 1 ? `+ ${order.items.length - 1} илүү` : ''}`
+                                        ) : 'Бараа алга'}
                                     </p>
-                                    <p>Amount: <strong>{order.totalAmount?.toLocaleString() ?? 0} ₮</strong></p>
-                                    <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                    <p>Дүн: <strong>{order.totalAmount?.toLocaleString() ?? 0} ₮</strong></p>
+                                    <p>Огноо: {new Date(order.createdAt).toLocaleDateString()}</p>
                                 </div>
                             </div>
                         </Link>

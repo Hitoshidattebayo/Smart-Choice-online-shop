@@ -64,12 +64,12 @@ export default function Header() {
 
                     {/* Navigation */}
                     <nav className="nav">
-                        <a href="#" className="nav-link">Shop All</a>
-                        <a href="#" className="nav-link">Best Sellers</a>
+                        <a href="#" className="nav-link">Бүх дэлгүүр</a>
+                        <a href="#" className="nav-link">Шилдэг борлуулалт</a>
                         <a href="#" className="nav-link">Active QX</a>
-                        <a href="#" className="nav-link">Artisanal</a>
-                        <a href="#" className="nav-link">Kids</a>
-                        <a href="#" className="nav-link">About Us</a>
+                        <a href="#" className="nav-link">Гар урлал</a>
+                        <a href="#" className="nav-link">Хүүхдийн</a>
+                        <a href="#" className="nav-link">Бидний тухай</a>
                     </nav>
 
                     {/* Search and Icons */}
@@ -78,7 +78,7 @@ export default function Header() {
                         <div className="search-bar">
                             <input
                                 type="text"
-                                placeholder="Search products..."
+                                placeholder="Бүтээгдэхүүн хайх..."
                                 className="search-input"
                             />
                             <button className="search-btn">
@@ -122,7 +122,7 @@ export default function Header() {
                                                     {session.user?.name || 'User'}
                                                 </div>
                                                 <div style={{ fontSize: '13px', color: '#666', wordBreak: 'break-all' }}>
-                                                    {session.user?.isGuest ? 'Guest Account' : session.user?.email}
+                                                    {session.user?.isGuest ? 'Зочны хаяг' : session.user?.email}
                                                 </div>
                                             </div>
 
@@ -148,7 +148,7 @@ export default function Header() {
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                                 >
                                                     <User size={16} />
-                                                    My Account
+                                                    Миний хаяг
                                                 </button>
                                             </Link>
 
@@ -173,7 +173,7 @@ export default function Header() {
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                                 >
                                                     <Package size={16} />
-                                                    My Orders
+                                                    Миний захиалгууд
                                                 </button>
                                             </Link>
 
@@ -202,7 +202,7 @@ export default function Header() {
                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                             >
                                                 <LogOut size={16} />
-                                                Log Out
+                                                Гарах
                                             </button>
                                         </>
                                     ) : (
@@ -225,7 +225,7 @@ export default function Header() {
                                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                                 >
-                                                    Log in
+                                                    Нэвтрэх
                                                 </button>
                                             </Link>
                                             <Link href="/signup" style={{ textDecoration: 'none' }}>
@@ -246,7 +246,7 @@ export default function Header() {
                                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                                 >
-                                                    Sign up
+                                                    Бүртгүүлэх
                                                 </button>
                                             </Link>
                                             <button
@@ -283,7 +283,7 @@ export default function Header() {
                                                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
                                                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                             >
-                                                Continue as Guest
+                                                Зочноор үргэлжлүүлэх
                                             </button>
                                         </>
                                     )}
@@ -350,7 +350,7 @@ export default function Header() {
                                         fontWeight: '600',
                                         fontSize: '16px'
                                     }}>
-                                        Shopping Cart ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+                                        Сагс ({cartCount} {cartCount === 1 ? 'бараа' : 'бараа'})
                                     </div>
 
                                     {/* Cart Items */}
@@ -360,7 +360,7 @@ export default function Header() {
                                             textAlign: 'center',
                                             color: '#999'
                                         }}>
-                                            Your cart is empty
+                                            Таны сагс хоосон байна
                                         </div>
                                     ) : (
                                         <>
@@ -480,7 +480,7 @@ export default function Header() {
                                                     fontSize: '16px',
                                                     fontWeight: '700'
                                                 }}>
-                                                    <span>Total:</span>
+                                                    <span>Нийт:</span>
                                                     <span>${cartTotal}</span>
                                                 </div>
                                                 <button
@@ -518,7 +518,7 @@ export default function Header() {
                                                         cursor: 'pointer'
                                                     }}
                                                 >
-                                                    Proceed to Checkout
+                                                    Төлбөр төлөх
                                                 </button>
                                             </div>
                                         </>

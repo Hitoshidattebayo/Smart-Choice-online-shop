@@ -32,32 +32,32 @@ export default function RootLayout({
                                 <div className="footer-content">
                                     {/* Shop Column */}
                                     <div className="footer-column">
-                                        <h4>Shop</h4>
+                                        <h4>Дэлгүүр</h4>
                                         <ul className="footer-links">
-                                            <li><a href="#">All Products</a></li>
-                                            <li><a href="#">Best Sellers</a></li>
+                                            <li><a href="#">Бүх бараа</a></li>
+                                            <li><a href="#">Шилдэг борлуулалт</a></li>
                                             <li><a href="#">Active QX</a></li>
-                                            <li><a href="#">Artisanal Collection</a></li>
-                                            <li><a href="#">Kids Sneakers</a></li>
-                                            <li><a href="#">New Arrivals</a></li>
+                                            <li><a href="#">Гар урлал</a></li>
+                                            <li><a href="#">Хүүхдийн пүүз</a></li>
+                                            <li><a href="#">Шинэ</a></li>
                                         </ul>
                                     </div>
 
                                     {/* Policies Column */}
                                     <div className="footer-column">
-                                        <h4>Policies</h4>
+                                        <h4>Бодлого</h4>
                                         <ul className="footer-links">
-                                            <li><a href="#">Privacy Policy</a></li>
-                                            <li><a href="#">Terms of Service</a></li>
-                                            <li><a href="#">Shipping Policy</a></li>
-                                            <li><a href="#">Return Policy</a></li>
-                                            <li><a href="#">Warranty</a></li>
+                                            <li><a href="#">Нууцлалын бодлого</a></li>
+                                            <li><a href="#">Үйлчилгээний нөхцөл</a></li>
+                                            <li><a href="#">Хүргэлтийн нөхцөл</a></li>
+                                            <li><a href="#">Буцаалтын нөхцөл</a></li>
+                                            <li><a href="#">Баталгаат хугацаа</a></li>
                                         </ul>
                                     </div>
 
                                     {/* Contact Column */}
                                     <div className="footer-column">
-                                        <h4>Contact</h4>
+                                        <h4>Холбоо барих</h4>
                                         <ul className="footer-links">
                                             <li>123 Market Street</li>
                                             <li>San Francisco, CA 94103</li>
@@ -69,19 +69,19 @@ export default function RootLayout({
 
                                     {/* Newsletter Column */}
                                     <div className="footer-column">
-                                        <h4>Stay in the Loop</h4>
+                                        <h4>Мэдээлэл авах</h4>
                                         <p className="newsletter-description">
-                                            Subscribe to our newsletter for exclusive offers and updates.
+                                            Манай мэдээллийн товхимолд бүртгүүлж, онцгой санал, шинэчлэлтүүдийг аваарай.
                                         </p>
                                         <form className="newsletter-form">
                                             <input
                                                 type="email"
-                                                placeholder="Your email"
+                                                placeholder="Таны имэйл"
                                                 className="newsletter-input"
                                                 required
                                             />
                                             <button type="submit" className="newsletter-btn">
-                                                Subscribe
+                                                Бүртгүүлэх
                                             </button>
                                         </form>
 
@@ -102,8 +102,8 @@ export default function RootLayout({
 
                                 {/* Footer Bottom */}
                                 <div className="footer-bottom">
-                                    <p>&copy; 2026 Smart Choice. All rights reserved.</p>
-                                    <p>Your Online Shopping Destination</p>
+                                    <p>&copy; 2026 Smart Choice. Бүх эрх хуулиар хамгаалагдсан.</p>
+                                    <p>Таны онлайн дэлгүүр</p>
                                 </div>
                             </div>
                         </footer>
