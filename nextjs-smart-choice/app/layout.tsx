@@ -10,6 +10,12 @@ export const metadata: Metadata = {
     description: "Smart Choice - Premium products for the Mongolian market. Shop the best selection online.",
 };
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+};
+
 export default function RootLayout({
     children,
 }: Readonly<{

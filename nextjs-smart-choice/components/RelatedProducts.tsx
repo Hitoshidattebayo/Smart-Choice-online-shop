@@ -26,7 +26,7 @@ export default function RelatedProducts({ products }: Props) {
                     <h2 className="section-title">Бусад бараанууд</h2>
                 </div>
 
-                <div className="grid grid-4">
+                <div className="mobile-swipe-grid">
                     {products.map((product) => (
                         <div key={product.id} className="product-card">
                             <Link href={`/product/${product.id}`}>

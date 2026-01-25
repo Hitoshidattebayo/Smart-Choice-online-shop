@@ -4,15 +4,16 @@ import { useSession, signOut, signIn } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Search, User, Heart, ShoppingCart, X, Minus, Plus, LogOut, Package, Settings } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Search, User, Heart, ShoppingCart, X, Minus, Plus, LogOut, Package, Menu } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function Header() {
     const { data: session } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
     const [showAccountMenu, setShowAccountMenu] = useState(false);
-    // const [showCartDropdown, setShowCartDropdown] = useState(false); // Refactored to global context
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const accountMenuRef = useRef<HTMLDivElement>(null);
     const cartMenuRef = useRef<HTMLDivElement>(null);
     const {
@@ -46,6 +47,20 @@ export default function Header() {
         };
     }, [showAccountMenu, isCartOpen, closeCart]);
 
+    // Close mobile menu on route change
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
+
+    // Prevent body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isMobileMenuOpen]);
+
     return (
         <header className="header">
             {/* Scrolling Top Banner */}
@@ -67,8 +82,16 @@ export default function Header() {
                 <div className="header-content">
                     {/* Left Side: Logo + Nav */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                        {/* Hamburger Menu Button (Mobile Only) */}
+                        <button
+                            className="icon-btn hidden-desktop"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <Menu size={24} />
+                        </button>
+
                         {/* Logo */}
-                        <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+                        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
                             <Image
                                 src="/logo.png"
                                 alt="Smart Choice"
@@ -77,10 +100,10 @@ export default function Header() {
                                 style={{ height: 'auto', maxHeight: '45px', width: 'auto' }}
                                 priority
                             />
-                        </a>
+                        </Link>
 
-                        {/* Navigation */}
-                        <nav className="nav">
+                        {/* Navigation (Desktop Only) */}
+                        <nav className="nav hidden-mobile">
                             <Link href="/" className="nav-link">Home</Link>
                             <Link href="/about" className="nav-link">About Us</Link>
                             <Link href="/contact" className="nav-link">Contact</Link>
@@ -89,8 +112,8 @@ export default function Header() {
 
                     {/* Search and Icons */}
                     <div className="header-icons">
-                        {/* Search Bar */}
-                        <div className="search-bar">
+                        {/* Search Bar (Hidden on Mobile, simplified icon maybe?) */}
+                        <div className="search-bar hidden-mobile">
                             <input
                                 type="text"
                                 placeholder="Бүтээгдэхүүн хайх..."
@@ -100,6 +123,10 @@ export default function Header() {
                                 <Search size={18} />
                             </button>
                         </div>
+                        {/* Mobile Search Icon */}
+                        <button className="icon-btn hidden-desktop">
+                            <Search size={20} />
+                        </button>
 
                         {/* Account Icon with Dropdown */}
                         <div style={{ position: 'relative' }} ref={accountMenuRef}>
@@ -307,7 +334,7 @@ export default function Header() {
                         </div>
 
                         {/* Other Icons */}
-                        <button className="icon-btn" title="Wishlist">
+                        <button className="icon-btn hidden-mobile" title="Wishlist">
                             <Heart size={20} />
                         </button>
                         {/* Cart Icon with Dropdown */}
@@ -357,7 +384,9 @@ export default function Header() {
                                     overflow: 'hidden',
                                     display: 'flex',
                                     flexDirection: 'column'
-                                }}>
+                                }}
+                                    className="mobile-cart-dropdown" // Add class for potential mobile styling overrides
+                                >
                                     {/* Header */}
                                     <div style={{
                                         padding: '16px',
@@ -544,6 +573,76 @@ export default function Header() {
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    zIndex: 2000,
+                    display: 'flex',
+                    justifyContent: 'flex-start'
+                }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                >
+                    <div style={{
+                        width: '80%',
+                        maxWidth: '300px',
+                        height: '100%',
+                        backgroundColor: '#fff',
+                        padding: '24px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '24px',
+                        overflowY: 'auto'
+                    }}
+                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside menu
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Image
+                                src="/logo.png"
+                                alt="Smart Choice"
+                                width={140}
+                                height={40}
+                                style={{ height: 'auto', width: 'auto' }}
+                            />
+                            <button onClick={() => setIsMobileMenuOpen(false)} className="icon-btn">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="search-bar">
+                            <input
+                                type="text"
+                                placeholder="Бүтээгдэхүүн хайх..."
+                                className="search-input"
+                            />
+                            <button className="search-btn">
+                                <Search size={18} />
+                            </button>
+                        </div>
+
+                        <nav style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <Link href="/" className="nav-link" style={{ fontSize: '18px' }}>Home</Link>
+                            <Link href="/about" className="nav-link" style={{ fontSize: '18px' }}>About Us</Link>
+                            <Link href="/contact" className="nav-link" style={{ fontSize: '18px' }}>Contact</Link>
+                        </nav>
+
+                        <div style={{ borderTop: '1px solid #eee', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <Link href="/account" className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <User size={20} /> Миний хаяг
+                            </Link>
+                            <Link href="/account/orders" className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Package size={20} /> Миний захиалгууд
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
         </header >
     );
 }

@@ -146,11 +146,29 @@
   --spacing-2xl: 4rem;
   /* 64px */
   --spacing-3xl: 6rem;
+  /* 48px */
+  --spacing-2xl: 4rem;
+  /* 64px */
+  --spacing-3xl: 6rem;
   /* 96px */
 
   /* Container */
   --container-max-width: 1440px;
   --container-padding: var(--spacing-lg);
+
+  /* Responsive Variables */
+  @media (max-width: 768px) {
+    --font-size-4xl: 2.5rem;
+    --font-size-3xl: 2rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-xl: 1.25rem;
+
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
+
+    --container-padding: var(--spacing-sm);
+  }
 
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -238,6 +256,91 @@ a:hover {
   color: var(--color-accent-blue);
 }
 
+/* ===== Responsive Utilities ===== */
+.hidden-mobile {
+  display: flex;
+}
+
+.hidden-desktop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+
+  .hidden-desktop {
+    display: flex !important;
+  }
+
+  .hero-container {
+    padding-top: 1rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* ===== Component Styles ===== */
+.sustainability-card {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.sustainability-card:hover {
+  transform: translateY(-5px);
+}
+
+.sustainability-icon {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.sustainability-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.sustainability-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.hero-wrapper {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.hero-card {
+  flex: 1 1 450px;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 550px;
+}
+
+@media (max-width: 768px) {
+  .hero-wrapper {
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-card {
+    min-height: auto;
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+}
+
 /* ===== Layout Utilities ===== */
 .container {
   max-width: var(--container-max-width);
@@ -276,8 +379,78 @@ a:hover {
   grid-template-columns: repeat(4, 1fr);
 }
 
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-headline {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .grid-auto {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* ===== Mobile Swipe Grid ===== */
+.mobile-swipe-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(4, 1fr);
+  /* Default desktop 4 columns */
+}
+
+@media (max-width: 1024px) {
+  .mobile-swipe-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-swipe-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    /* Add padding for scrollbar/shadow visibility */
+    /* Hide scrollbar */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+  }
+
+  .mobile-swipe-grid::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+  }
+
+  .mobile-swipe-grid>* {
+    flex: 0 0 70%;
+    /* Show 70% of the card */
+    scroll-snap-align: start;
+    min-width: 70%;
+    /* Ensure minimum width */
+  }
 }
 
 /* ===== Flexbox Utilities ===== */
@@ -1093,11 +1266,30 @@ a:hover {
   }
 }
 
-@keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
 
-@keyframes marqueeReverse { 0% { transform: translateX(-100%); } 100% { transform: translateX(0%); } }
+  100% {
+    transform: translateX(-100%);
+  }
+}
 
-.animate-marquee { animation: marquee 25s linear infinite; }
+@keyframes marqueeReverse {
+  0% {
+    transform: translateX(-100%);
+  }
 
-.animate-marquee-reverse { animation: marqueeReverse 25s linear infinite; }
+  100% {
+    transform: translateX(0%);
+  }
+}
 
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marqueeReverse 25s linear infinite;
+}

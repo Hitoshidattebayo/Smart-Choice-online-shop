@@ -123,7 +123,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
         <>
             {/* Hero Section - Clean Rebuild */}
             <section className="hero">
-                <div className="container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
+                <div className="container hero-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
                     {/* Delivery Info Bar */}
                     <DeliveryInfoBar />
 
@@ -131,21 +131,9 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
 
                     {/* Main Hero Content */}
                     <div style={{ position: 'relative' }}>
-                        <div style={{
-                            display: 'flex',
-                            gap: '2rem',
-                            marginBottom: '3rem',
-                            alignItems: 'stretch',
-                            flexWrap: 'wrap'
-                        }}>
+                        <div className="hero-wrapper">
                             {/* Left: Text Content */}
-                            {/* Left: Text Content */}
-                            <div style={{
-                                flex: '1 1 450px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignSelf: 'stretch',
-                                minHeight: '550px',
+                            <div className="hero-card" style={{
                                 padding: '20px 20px var(--spacing-xl) 20px' // Match carousel padding
                             }}>
                                 <div style={{
@@ -174,14 +162,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
                             </div>
 
                             {/* Right: Product Carousel */}
-                            <div style={{
-                                flex: '1 1 450px',
-                                maxWidth: '500px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignSelf: 'stretch',
-                                minHeight: '550px'
-                            }}>
+                            <div className="hero-card" style={{ maxWidth: '500px' }}>
                                 <div
                                     ref={carouselRef}
                                     onScroll={handleScroll}
@@ -304,11 +285,11 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
             <section className="section">
                 <div className="container">
                     <div className="section-header">
-                        <h2 className="section-title">Our Best Sellers</h2>
-                        <p className="section-subtitle">Discover why these are customer favorites</p>
+                        <h2 className="section-title">ОНЦЛОХ БҮТЭЭГДЭХҮҮН</h2>
+                        <p className="section-subtitle">Хэрэглэгчдийн таашаалд нийцсэн бүтээгдэхүүнүүдийг сонирхоорой</p>
                     </div>
 
-                    <div className="grid grid-4">
+                    <div className="mobile-swipe-grid">
                         {bestSellers.map((product) => (
                             <div key={product.id} className="product-card">
                                 <Link href={`/product/${product.id}`}>
@@ -370,7 +351,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
                         </p>
                     </div>
 
-                    <div className="sustainability-grid">
+                    <div className="grid grid-3">
                         <div className="sustainability-card">
                             <div className="sustainability-icon">
                                 <Lightbulb size={64} strokeWidth={1.5} style={{ color: 'var(--color-accent-blue)' }} />
@@ -411,7 +392,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
             <section className="section">
                 <div className="container">
                     <div className="section-header">
-                        <h2 className="section-title">{reviewTitle || "Find Out What People Are Saying About QUENX"}</h2>
+                        <h2 className="section-title">{reviewTitle || "ХЭРЭГЛЭГЧДИЙН СЭТГЭГДЭЛ"}</h2>
                     </div>
 
                     <div className="grid grid-3">

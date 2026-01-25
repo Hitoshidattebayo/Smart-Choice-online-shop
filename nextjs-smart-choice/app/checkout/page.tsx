@@ -1,17 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import { createCartOrder } from '@/actions/order';
+import CopyButton from '@/components/CopyButton';
 
 export default function CheckoutPage() {
     const { cart, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState('transfer');
+    const [paymentRef, setPaymentRef] = useState('');
+
+    useEffect(() => {
+        // Generate reference: SC - [First 2 letters of first product] - [Random Number]
+        let prefix = 'GEN'; // Fallback
+        if (cart.length > 0 && cart[0].name) {
+            // Get first 2 chars, remove non-alphanumeric if needed, but cyrillic is fine. 
+            // Just uppercase first 2 chars.
+            prefix = cart[0].name.substring(0, 2).toUpperCase();
+        }
+
+        const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+        setPaymentRef(`SC-${prefix}-${randomNum}`);
+    }, [cart]);
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -20,7 +36,6 @@ export default function CheckoutPage() {
         phone: '',
         address: '',
         city: '',
-        district: '',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -39,9 +54,10 @@ export default function CheckoutPage() {
                 customerName: `${formData.firstName} ${formData.lastName}`,
                 phoneNumber: formData.phone,
                 email: formData.email,
-                address: `${formData.address}, ${formData.district}, ${formData.city}`, // Pass formatted address
+                address: `${formData.address}, ${formData.city}`, // Pass formatted address
                 totalAmount: cartTotal,
-                items: cart
+                items: cart,
+                paymentReference: paymentRef // Pass the specific reference we showed the user
             });
 
             if (result.success) {
@@ -148,8 +164,25 @@ export default function CheckoutPage() {
                                     </div>
                                 </div>
 
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Хот / Орон нутаг</label>
+                                        <select
+                                            name="city"
+                                            required
+                                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                                            value={formData.city}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Сонгох...</option>
+                                            <option value="Ulaanbaatar">Улаанбаатар хот</option>
+                                            <option value="Local">Орон нутаг</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Хаяг</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Дэлгэрэнгүй хаяг</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -159,36 +192,6 @@ export default function CheckoutPage() {
                                             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                                             placeholder="Байр, тоот гэх мэт..."
                                             value={formData.address}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Хот</label>
-                                        <select
-                                            name="city"
-                                            required
-                                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                            value={formData.city}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">Хот сонгох</option>
-                                            <option value="Ulaanbaatar">Улаанбаатар</option>
-                                            <option value="Darkhan">Дархан</option>
-                                            <option value="Erdenet">Эрдэнэт</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Дүүрэг</label>
-                                        <input
-                                            type="text"
-                                            name="district"
-                                            required
-                                            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                                            placeholder="Сүхбаатар дүүрэг"
-                                            value={formData.district}
                                             onChange={handleInputChange}
                                         />
                                     </div>
@@ -203,21 +206,72 @@ export default function CheckoutPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
-                                    <input type="radio" name="payment" defaultChecked className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">Банкны карт</span>
+                                <label className={`flex flex-col p-4 border rounded-xl cursor-pointer transition-colors ${selectedPayment === 'transfer' ? 'border-black bg-gray-50' : 'hover:border-black'}`}>
+                                    <div className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="payment"
+                                            value="transfer"
+                                            checked={selectedPayment === 'transfer'}
+                                            onChange={(e) => setSelectedPayment(e.target.value)}
+                                            className="w-5 h-5 text-black"
+                                        />
+                                        <span className="ml-3 font-medium">Дансаар</span>
+                                    </div>
+
+                                    {selectedPayment === 'transfer' && (
+                                        <div className="mt-4 pl-8">
+                                            <div className="bg-white p-4 rounded-lg border border-gray-200 text-sm space-y-3">
+                                                <div className="flex justify-between border-b pb-2">
+                                                    <span className="text-gray-500">Банк:</span>
+                                                    <span className="font-medium text-right">Хаан Банк</span>
+                                                </div>
+                                                <div className="space-y-1 border-b pb-2">
+                                                    <span className="text-gray-500 block">Дансны дугаар:</span>
+                                                    <div className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                                                        <span className="font-mono font-bold">MN420005005019333896</span>
+                                                        <CopyButton text="MN420005005019333896" className="text-gray-500 hover:text-black" />
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between border-b pb-2">
+                                                    <span className="text-gray-500">Данс эзэмшигч:</span>
+                                                    <span className="font-medium text-right">Баясгалан Цолмон</span>
+                                                </div>
+
+                                                <div className="space-y-1 pt-1">
+                                                    <p className="text-xs text-gray-500 font-bold uppercase">Гүйлгээний утга (ЗААВАЛ БИЧИХ)</p>
+                                                    <div className="flex items-center justify-between bg-gray-100 p-3 rounded-md border border-gray-200">
+                                                        <span className="font-mono font-bold text-lg text-black">{paymentRef}</span>
+                                                        <CopyButton text={paymentRef} className="text-gray-500 hover:text-black" label="ХУУЛАХ" showLabel={true} />
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 mt-2 leading-tight">
+                                                        * Та төлбөр шилжүүлэхдээ гүйлгээний утга хэсэгт энэ кодыг бичнэ үү. Ингэснээр бид таны төлбөрийг автоматаар баталгаажуулах болно.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </label>
-                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
-                                    <input type="radio" name="payment" className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">SocialPay</span>
+                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors opacity-60">
+                                    <input
+                                        type="radio"
+                                        name="payment"
+                                        value="qpay"
+                                        disabled
+                                        className="w-5 h-5 text-black"
+                                    />
+                                    <span className="ml-3 font-medium text-gray-500">QPay /тун удахгүй/</span>
                                 </label>
-                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
-                                    <input type="radio" name="payment" className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">QPay</span>
-                                </label>
-                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors">
-                                    <input type="radio" name="payment" className="w-5 h-5 text-black" />
-                                    <span className="ml-3 font-medium">Бэлнээр төлөх</span>
+                                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${selectedPayment === 'cash' ? 'border-black' : 'hover:border-black'}`}>
+                                    <input
+                                        type="radio"
+                                        name="payment"
+                                        value="cash"
+                                        checked={selectedPayment === 'cash'}
+                                        onChange={(e) => setSelectedPayment(e.target.value)}
+                                        className="w-5 h-5 text-black"
+                                    />
+                                    <span className="ml-3 font-medium">Бэлнээр</span>
                                 </label>
                             </div>
                         </div>

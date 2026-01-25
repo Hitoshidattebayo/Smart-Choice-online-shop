@@ -9,7 +9,7 @@ export default function FAQSection({ faqs }: FAQProps) {
         <section className="section bg-white">
             <div className="container" style={{ maxWidth: '800px' }}>
                 <div className="section-header">
-                    <h2 className="section-title">Frequently Asked Questions</h2>
+                    <h2 className="section-title">ТҮГЭЭМЭЛ АСУУЛТ ХАРИУЛТ</h2>
                 </div>
                 <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                     {faqs && faqs.length > 0 ? (
@@ -28,7 +28,7 @@ export default function FAQSection({ faqs }: FAQProps) {
                         ))
                     ) : (
                         <p className="text-center text-gray-500">
-                            No questions yet.
+                            Асуулт байхгүй байна.
                         </p>
                     )}
                 </div>

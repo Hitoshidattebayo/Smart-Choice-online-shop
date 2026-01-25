@@ -41,9 +41,10 @@ export async function createCartOrder(data: {
     customerName: string;
     phoneNumber: string;
     email: string;
-    address: string; // Added address
+    address: string;
     totalAmount: number;
     items: any[];
+    paymentReference?: string; // Optional custom reference
 }) {
     // Note: formData here is expected to be a plain object, not FormData, 
     // because we're passing complex arrays from the client.
@@ -55,8 +56,8 @@ export async function createCartOrder(data: {
         const session = await getServerSession(authOptions);
         const userId = session?.user?.id || null;
 
-        // Generate unique payment reference
-        const paymentReference = `SC-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
+        // Generate unique payment reference if not provided
+        const paymentReference = data.paymentReference || `SC-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
 
         const order = await prisma.order.create({
             data: {
