@@ -18,6 +18,10 @@ export interface Product {
     badge?: string;
     variants?: ProductVariant[];
     specifications?: { label: string; value: string }[];
+    stockStatus?: string;
+    productVideos?: string[];
+    videoSectionTitle?: string;
+    faqs?: { question: string; answer: string }[];
 }
 
 export const products: Product[] = [

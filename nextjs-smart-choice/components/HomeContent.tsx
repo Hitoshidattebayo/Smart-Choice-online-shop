@@ -2,16 +2,29 @@
 
 import Image from "next/image";
 import Link from 'next/link';
-import { Sprout, Leaf, Recycle, UserCircle, PartyPopper, ChevronLeft, ChevronRight, Clock, Truck, MapPin, Lightbulb, ShieldCheck, HeartHandshake } from "lucide-react";
+import { Sprout, Leaf, Recycle, UserCircle, PartyPopper, ChevronLeft, ChevronRight, Clock, Truck, MapPin, Lightbulb, ShieldCheck, HeartHandshake, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useCart } from "../context/CartContext";
+import DeliveryInfoBar from "./DeliveryInfoBar";
+import FAQSection from "./FAQSection";
+
+interface Testimonial {
+    id: string | number;
+    text: string;
+    author: string;
+    role?: string;
+    avatar?: string | null;
+}
 
 interface Props {
     bestSellers: any[];
     heroProducts: any[];
+    faqs?: any[];
+    testimonials?: Testimonial[];
+    reviewTitle?: string;
 }
 
-export default function HomeContent({ bestSellers, heroProducts }: Props) {
+export default function HomeContent({ bestSellers, heroProducts, faqs = [], testimonials = [], reviewTitle }: Props) {
     const [currentProductIndex, setCurrentProductIndex] = useState(0);
     const carouselRef = useRef<HTMLDivElement>(null);
     const { addToCart } = useCart();
@@ -39,26 +52,28 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
         },
     ];
 
-    const testimonials = [
+    const hardcodedTestimonials: Testimonial[] = [
         {
             id: 1,
             text: "These are the most comfortable sneakers I've ever owned. Plus, knowing they're vegan and sustainable makes me feel even better!",
             author: "Sarah M.",
-            avatar: "👩"
+            avatar: null
         },
         {
             id: 2,
             text: "QUENX has completely changed my perspective on vegan footwear. The quality is outstanding and they look incredible!",
             author: "James K.",
-            avatar: "👨"
+            avatar: null
         },
         {
             id: 3,
             text: "I love that I can look good and do good at the same time. These sneakers are perfect for my active lifestyle.",
             author: "Maria L.",
-            avatar: "👩"
+            avatar: null
         },
     ];
+
+    const displayedTestimonials = (testimonials && testimonials.length > 0) ? testimonials : hardcodedTestimonials;
 
     const scrollToProduct = (index: number) => {
         if (carouselRef.current) {
@@ -110,29 +125,9 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
             <section className="hero">
                 <div className="container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
                     {/* Delivery Info Bar */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: '3rem',
-                        marginBottom: '4rem',
-                        flexWrap: 'wrap',
-                        color: 'var(--color-text-light)',
-                        fontSize: '1.1rem',
-                        fontWeight: 500
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <Clock size={24} />
-                            <span>24 цагийн дотор</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <Truck size={24} />
-                            <span>Хот дотор хүргэлт үнэгүй</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                            <MapPin size={24} />
-                            <span>Хөдөө орон нутгийн унаанд тавьж явуулах боломжтой</span>
-                        </div>
-                    </div>
+                    <DeliveryInfoBar />
+
+                    {/* Main Hero Content */}
 
                     {/* Main Hero Content */}
                     <div style={{ position: 'relative' }}>
@@ -144,30 +139,38 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
                             flexWrap: 'wrap'
                         }}>
                             {/* Left: Text Content */}
+                            {/* Left: Text Content */}
                             <div style={{
                                 flex: '1 1 450px',
-                                backgroundColor: '#ffffff',
-                                padding: '3rem',
-                                borderRadius: '12px',
-                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'center',
                                 alignSelf: 'stretch',
-                                minHeight: '550px'
+                                minHeight: '550px',
+                                padding: '20px 20px var(--spacing-xl) 20px' // Match carousel padding
                             }}>
-                                {heroProducts[currentProductIndex] && (
-                                    <div key={currentProductIndex} className="fade-enter-active">
-                                        <h1 className="hero-headline">{heroProducts[currentProductIndex].headline}</h1>
-                                        <p style={{
-                                            fontSize: 'var(--font-size-lg)',
-                                            color: 'var(--color-text-light)',
-                                            lineHeight: 1.6
-                                        }}>
-                                            {heroProducts[currentProductIndex].description}
-                                        </p>
-                                    </div>
-                                )}
+                                <div style={{
+                                    flex: 1,
+                                    backgroundColor: '#ffffff',
+                                    padding: '3rem',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                }}>
+                                    {heroProducts[currentProductIndex] && (
+                                        <div key={currentProductIndex} className="fade-enter-active">
+                                            <h1 className="hero-headline">{heroProducts[currentProductIndex].headline}</h1>
+                                            <p style={{
+                                                fontSize: 'var(--font-size-lg)',
+                                                color: 'var(--color-text-light)',
+                                                lineHeight: 1.6
+                                            }}>
+                                                {heroProducts[currentProductIndex].description}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Right: Product Carousel */}
@@ -183,61 +186,66 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
                                     ref={carouselRef}
                                     onScroll={handleScroll}
                                     className="product-carousel-container"
+                                    style={{ height: '100%', flex: 1 }}
                                 >
                                     {heroProducts.map((product) => (
-                                        <div key={product.id} className="hero-product-card">
-                                            <div style={{ marginBottom: 'var(--spacing-md)' }}>
-                                                <Image
-                                                    src={product.image}
-                                                    alt={product.title}
-                                                    width={400}
-                                                    height={400}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: 'auto',
-                                                        borderRadius: '8px',
-                                                        aspectRatio: '1/1',
-                                                        objectFit: 'cover'
-                                                    }}
-                                                />
+                                        <div key={product.id} className="hero-product-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                            <div>
+                                                <div style={{ marginBottom: 'var(--spacing-md)' }}>
+                                                    <Image
+                                                        src={product.image}
+                                                        alt={product.title}
+                                                        width={400}
+                                                        height={400}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: 'auto',
+                                                            borderRadius: '8px',
+                                                            aspectRatio: '1/1',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                    />
+                                                </div>
+                                                <h3 style={{
+                                                    fontSize: 'var(--font-size-xl)',
+                                                    fontWeight: '700',
+                                                    marginBottom: 'var(--spacing-xs)'
+                                                }}>
+                                                    {product.title}
+                                                </h3>
+                                                <p style={{
+                                                    color: 'var(--color-text-light)',
+                                                    marginBottom: 'var(--spacing-md)',
+                                                    fontSize: 'var(--font-size-sm)'
+                                                }}>
+                                                    {product.subtext}
+                                                </p>
                                             </div>
-                                            <h3 style={{
-                                                fontSize: 'var(--font-size-xl)',
-                                                fontWeight: '700',
-                                                marginBottom: 'var(--spacing-xs)'
-                                            }}>
-                                                {product.title}
-                                            </h3>
-                                            <p style={{
-                                                color: 'var(--color-text-light)',
-                                                marginBottom: 'var(--spacing-md)',
-                                                fontSize: 'var(--font-size-sm)'
-                                            }}>
-                                                {product.subtext}
-                                            </p>
-                                            <div style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '10px',
-                                                marginBottom: 'var(--spacing-md)'
-                                            }}>
-                                                <span style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800' }}>
-                                                    {product.price}
-                                                </span>
-                                                {product.originalPrice && (
-                                                    <span style={{ textDecoration: 'line-through', color: '#888' }}>
-                                                        {product.originalPrice}
+                                            <div>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px',
+                                                    marginBottom: 'var(--spacing-md)'
+                                                }}>
+                                                    <span style={{ fontSize: 'var(--font-size-2xl)', fontWeight: '800' }}>
+                                                        {product.price}
                                                     </span>
-                                                )}
+                                                    {product.originalPrice && (
+                                                        <span style={{ textDecoration: 'line-through', color: '#888' }}>
+                                                            {product.originalPrice}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <Link href={`/product/${product.id}`}>
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        style={{ width: '100%' }}
+                                                    >
+                                                        VIEW DETAILS
+                                                    </button>
+                                                </Link>
                                             </div>
-                                            <Link href={`/product/${product.id}`}>
-                                                <button
-                                                    className="btn btn-primary"
-                                                    style={{ width: '100%' }}
-                                                >
-                                                    VIEW DETAILS
-                                                </button>
-                                            </Link>
                                         </div>
                                     ))}
                                 </div>
@@ -304,9 +312,27 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
                         {bestSellers.map((product) => (
                             <div key={product.id} className="product-card">
                                 <Link href={`/product/${product.id}`}>
-                                    <div className="product-card-img-wrapper">
+                                    <div className="product-card-img-wrapper relative">
                                         {product.badge && (
-                                            <span className="product-badge">{product.badge}</span>
+                                            <span
+                                                className="product-badge"
+                                                style={{
+                                                    backgroundColor:
+                                                        product.badgeType === 'instock' ? '#4CAF50' :
+                                                            product.badgeType === 'preorder' ? '#FF9800' :
+                                                                product.badgeType === 'outOfStock' ? '#F44336' :
+                                                                    'var(--color-sale-badge)'
+                                                }}
+                                            >
+                                                {product.badge}
+                                            </span>
+                                        )}
+                                        {product.discountPercentage > 0 && (
+                                            <span
+                                                className="absolute top-3 right-3 bg-[#F44336] text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm z-10"
+                                            >
+                                                -{product.discountPercentage}%
+                                            </span>
                                         )}
                                         <Image
                                             src={product.image}
@@ -318,7 +344,14 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
                                     </div>
                                     <div className="product-card-body">
                                         <h3 className="product-name">{product.name}</h3>
-                                        <p className="product-price">{product.price}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="product-price">{product.price}</p>
+                                            {product.originalPrice && (
+                                                <p className="text-sm text-gray-400 line-through font-medium">
+                                                    {product.originalPrice}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </Link>
                             </div>
@@ -371,21 +404,40 @@ export default function HomeContent({ bestSellers, heroProducts }: Props) {
                 </div>
             </section>
 
+            {/* FAQ Section */}
+            <FAQSection faqs={faqs} />
+
             {/* Testimonials Section */}
             <section className="section">
                 <div className="container">
                     <div className="section-header">
-                        <h2 className="section-title">Find Out What People Are Saying About QUENX</h2>
+                        <h2 className="section-title">{reviewTitle || "Find Out What People Are Saying About QUENX"}</h2>
                     </div>
 
                     <div className="grid grid-3">
-                        {testimonials.map((testimonial) => (
+                        {displayedTestimonials.map((testimonial) => (
                             <div key={testimonial.id} className="testimonial-card">
-                                <div style={{ marginBottom: 'var(--spacing-md)', color: 'var(--color-accent-blue)' }}>
-                                    <UserCircle size={80} strokeWidth={1.5} />
+                                <div style={{
+                                    marginBottom: 'var(--spacing-md)',
+                                    color: 'var(--color-accent-blue)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                    {testimonial.avatar ? (
+                                        <Image
+                                            src={testimonial.avatar}
+                                            alt={testimonial.author}
+                                            width={80}
+                                            height={80}
+                                            className="testimonial-avatar"
+                                        />
+                                    ) : (
+                                        <UserCircle size={80} strokeWidth={1.5} />
+                                    )}
                                 </div>
                                 <p className="testimonial-text">&ldquo;{testimonial.text}&rdquo;</p>
-                                <p className="testimonial-author">— {testimonial.author}</p>
+                                <p className="testimonial-author">— {testimonial.author} {testimonial.role && <span style={{ fontSize: '0.8em', color: '#666' }}>({testimonial.role})</span>}</p>
                             </div>
                         ))}
                     </div>

@@ -48,26 +48,44 @@ export default function Header() {
 
     return (
         <header className="header">
+            {/* Scrolling Top Banner */}
+            <div className="bg-black text-white text-xs py-2 overflow-hidden flex border-b border-gray-800 uppercase tracking-widest">
+                <div className="animate-marquee-reverse whitespace-nowrap flex-shrink-0 flex items-center">
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                </div>
+                <div className="animate-marquee-reverse whitespace-nowrap flex-shrink-0 flex items-center">
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                    <span className="mx-20">Таны ухаалаг худалдан авалтын гүүр</span>
+                </div>
+            </div>
             <div className="container">
                 <div className="header-content">
-                    {/* Logo */}
-                    <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
-                        <Image
-                            src="/logo.png"
-                            alt="Smart Choice"
-                            width={200}
-                            height={60}
-                            style={{ height: 'auto', maxHeight: '50px', width: 'auto' }}
-                            priority
-                        />
-                    </a>
+                    {/* Left Side: Logo + Nav */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                        {/* Logo */}
+                        <a href="/" style={{ display: 'flex', alignItems: 'center' }}>
+                            <Image
+                                src="/logo.png"
+                                alt="Smart Choice"
+                                width={180}
+                                height={50}
+                                style={{ height: 'auto', maxHeight: '45px', width: 'auto' }}
+                                priority
+                            />
+                        </a>
 
-                    {/* Navigation */}
-                    <nav className="nav">
-                        <Link href="/" className="nav-link">Home</Link>
-                        <Link href="/about" className="nav-link">About Us</Link>
-                        <Link href="/contact" className="nav-link">Contact</Link>
-                    </nav>
+                        {/* Navigation */}
+                        <nav className="nav">
+                            <Link href="/" className="nav-link">Home</Link>
+                            <Link href="/about" className="nav-link">About Us</Link>
+                            <Link href="/contact" className="nav-link">Contact</Link>
+                        </nav>
+                    </div>
 
                     {/* Search and Icons */}
                     <div className="header-icons">

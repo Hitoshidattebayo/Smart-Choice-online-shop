@@ -20,6 +20,20 @@ export default defineType({
             },
         }),
         defineField({
+            name: 'stockStatus',
+            title: 'Stock Status',
+            type: 'string',
+            options: {
+                list: [
+                    { title: 'Бэлэн', value: 'instock' },
+                    { title: 'Захиалгаар', value: 'preorder' },
+                    { title: 'Дууссан', value: 'outOfStock' },
+                ],
+                layout: 'radio'
+            },
+            initialValue: 'instock'
+        }),
+        defineField({
             name: 'price',
             title: 'Price',
             type: 'number',
@@ -67,6 +81,34 @@ export default defineType({
                             title: 'Values',
                             of: [{ type: 'string' }]
                         }
+                    ]
+                }
+            ]
+        }),
+        defineField({
+            name: 'videoSectionTitle',
+            title: 'Video Section Title',
+            type: 'string',
+            initialValue: 'Trusted by 65.000+ people just like you!',
+            description: 'Title displayed above the video carousel.'
+        }),
+        defineField({
+            name: 'productVideos',
+            title: 'Product Videos (9:16)',
+            type: 'array',
+            of: [{ type: 'file', options: { accept: 'video/*' } }],
+            description: 'Upload 9:16 vertical videos for the swipeable carousel.'
+        }),
+        defineField({
+            name: 'faqs',
+            title: 'FAQs',
+            type: 'array',
+            of: [
+                {
+                    type: 'object',
+                    fields: [
+                        { name: 'question', type: 'string', title: 'Question' },
+                        { name: 'answer', type: 'text', title: 'Answer' }
                     ]
                 }
             ]
