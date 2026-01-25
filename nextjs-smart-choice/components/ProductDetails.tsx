@@ -288,7 +288,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                             {/* Description */}
                             <div className="space-y-4 pt-4 border-t border-gray-100">
                                 <p className="font-bold text-lg">Дэлгэрэнгүй мэдээлэл</p>
-                                <p className="text-gray-600 leading-relaxed text-sm">
+                                <p className="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap">
                                     {product.description}
                                 </p>
                             </div>
