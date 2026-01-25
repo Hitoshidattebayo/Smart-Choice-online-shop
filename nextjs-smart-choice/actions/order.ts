@@ -45,6 +45,7 @@ export async function createCartOrder(data: {
     totalAmount: number;
     items: any[];
     paymentReference?: string; // Optional custom reference
+    paymentMethod?: string; // Added paymentMethod
 }) {
     // Note: formData here is expected to be a plain object, not FormData, 
     // because we're passing complex arrays from the client.
@@ -67,6 +68,7 @@ export async function createCartOrder(data: {
                 address: data.address, // Save address
                 totalAmount: data.totalAmount,
                 paymentReference,
+                paymentMethod: data.paymentMethod, // Save payment method
                 userId,
                 status: 'PENDING_PAYMENT',
                 items: {
@@ -294,26 +296,24 @@ export async function deletePermanently(orderId: string) {
     }
 }
 
-export async function cleanTrash() {
+export async function emptyTrash() {
     try {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-        // Find old deleted orders
-        const oldOrders = await prisma.order.findMany({
+        // Find all deleted orders
+        const trashedOrders = await prisma.order.findMany({
             where: {
                 deletedAt: {
-                    lt: thirtyDaysAgo
+                    not: null
                 }
             },
             select: { id: true }
         });
 
-        for (const order of oldOrders) {
+        for (const order of trashedOrders) {
             await deletePermanently(order.id);
         }
     } catch (error) {
-        console.error('Failed to clean trash', error);
+        console.error('Failed to empty trash', error);
+        throw new Error('Failed to empty trash');
     }
 }
 

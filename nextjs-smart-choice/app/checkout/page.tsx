@@ -57,7 +57,8 @@ export default function CheckoutPage() {
                 address: `${formData.address}, ${formData.city}`, // Pass formatted address
                 totalAmount: cartTotal,
                 items: cart,
-                paymentReference: paymentRef // Pass the specific reference we showed the user
+                paymentReference: paymentRef, // Pass the specific reference we showed the user
+                paymentMethod: selectedPayment // Pass selected payment method
             });
 
             if (result.success) {

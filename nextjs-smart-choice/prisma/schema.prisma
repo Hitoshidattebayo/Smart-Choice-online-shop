@@ -17,6 +17,7 @@ model Order {
   totalAmount      Float
   status           String      @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAID, CANCELLED
   paymentReference String      @unique
+  paymentMethod    String?     // "transfer" | "cash" | "qpay"
   userId           String?
   user             User?       @relation(fields: [userId], references: [id])
   items            OrderItem[]

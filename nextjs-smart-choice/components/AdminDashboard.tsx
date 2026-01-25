@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, RotateCcw, X, Check, Eye } from 'lucide-react';
-import { markAsPaid, moveToTrash, restoreFromTrash, deletePermanently, cleanTrash } from '@/actions/order';
+import { markAsPaid, moveToTrash, restoreFromTrash, deletePermanently, emptyTrash as cleanTrash } from '@/actions/order';
 import Image from 'next/image';
 
 interface OrderItem {
@@ -23,6 +23,7 @@ interface Order {
     status: string | null;
     totalAmount: number;
     paymentReference: string | null;
+    paymentMethod: string | null; // Added paymentMethod
     createdAt: Date;
     deletedAt: Date | null;
     items: OrderItem[];
@@ -47,7 +48,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
     }
 
     async function handleCleanTrash() {
-        if (!confirm('Энэ нь 30 хоногоос дээш удсан бүх хогийг устгах болно. Үргэлжлүүлэх үү?')) return;
+        if (!confirm('Та хогийн сав дахь БҮХ мэдээллийг бүр мөсөн устгахдаа итгэлтэй байна уу?')) return;
         await cleanTrash();
         router.refresh();
     }
@@ -71,7 +72,7 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                 </div>
                 {view === 'trash' && (
                     <button onClick={handleCleanTrash} className="text-sm text-red-500 hover:underline">
-                        Хуучин хогийг цэвэрлэх
+                        Хогийн савыг хоослох
                     </button>
                 )}
             </div>
@@ -159,6 +160,14 @@ export default function AdminDashboard({ orders }: { orders: Order[] }) {
                                         </span>
                                         <span className="text-gray-400 text-sm">
                                             {new Date(selectedOrder.createdAt).toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Төлбөрийн хэрэгсэл</h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`px-3 py-1 rounded-full text-sm font-bold border ${selectedOrder.paymentMethod === 'cash' ? 'bg-gray-100 border-gray-300 text-gray-700' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                                            {selectedOrder.paymentMethod === 'cash' ? '💵 Бэлнээр' : '🏦 Дансаар'}
                                         </span>
                                     </div>
                                 </div>
