@@ -1,4 +1,21 @@
 import axios from 'axios';
+import https from 'https';
+
+const httpsAgent = new https.Agent({
+    keepAlive: true,
+    rejectUnauthorized: false // QPay sometimes has cert issues or intermediate chain missing? Use with caution.
+});
+
+// Create axios instance with custom config
+const qpayClient = axios.create({
+    timeout: 30000, // 30 seconds
+    httpsAgent,
+    headers: {
+        'User-Agent': 'SmartChoice/1.0.0 (Next.js Node Client)',
+        'Content-Type': 'application/json',
+        'Connection': 'keep-alive'
+    }
+});
 
 const QPAY_API_URL = process.env.QPAY_URL || 'https://merchant.qpay.mn/v2';
 // For sandbox/test environment, use: 'https://merchant-sandbox.qpay.mn/v2'
@@ -128,7 +145,7 @@ export class QPayClient {
 
         try {
             const auth = Buffer.from(`${username}:${password}`).toString('base64');
-            const response = await axios.post<QPayTokenResponse>(
+            const response = await qpayClient.post<QPayTokenResponse>(
                 `${QPAY_API_URL}/auth/token`,
                 {},
                 {
@@ -187,7 +204,7 @@ export class QPayClient {
                 payload.lines = ebarimt.lines;
             }
 
-            const response = await axios.post(
+            const response = await qpayClient.post(
                 `${QPAY_API_URL}/invoice`,
                 payload,
                 {
@@ -208,7 +225,7 @@ export class QPayClient {
         const token = await this.getAccessToken();
 
         try {
-            const response = await axios.post(
+            const response = await qpayClient.post(
                 `${QPAY_API_URL}/payment/check`,
                 {
                     object_type: 'INVOICE',
@@ -235,7 +252,7 @@ export class QPayClient {
     async cancelInvoice(invoiceId: string) {
         const token = await this.getAccessToken();
         try {
-            const response = await axios.delete(
+            const response = await qpayClient.delete(
                 `${QPAY_API_URL}/invoice/${invoiceId}`,
                 {
                     headers: {
@@ -253,7 +270,7 @@ export class QPayClient {
     async getPayment(paymentId: string): Promise<QPayPaymentRow> {
         const token = await this.getAccessToken();
         try {
-            const response = await axios.get(
+            const response = await qpayClient.get(
                 `${QPAY_API_URL}/payment/${paymentId}`,
                 {
                     headers: {
@@ -272,7 +289,7 @@ export class QPayClient {
         const token = await this.getAccessToken();
         try {
             // Endpoint: /payment/cancel/{payment_id}
-            const response = await axios.delete(
+            const response = await qpayClient.delete(
                 `${QPAY_API_URL}/payment/cancel/${paymentId}`,
                 {
                     headers: {
@@ -294,7 +311,7 @@ export class QPayClient {
         const token = await this.getAccessToken();
         try {
             // Endpoint: /payment/refund/{payment_id} (Card Refund)
-            const response = await axios.delete(
+            const response = await qpayClient.delete(
                 `${QPAY_API_URL}/payment/refund/${paymentId}`,
                 {
                     headers: {
@@ -326,7 +343,7 @@ export class QPayClient {
                 }
             };
 
-            const response = await axios.post(
+            const response = await qpayClient.post(
                 `${QPAY_API_URL}/payment/list`,
                 payload,
                 {
@@ -360,7 +377,7 @@ export class QPayClient {
             if (districtCode) payload.district_code = districtCode;
             if (classificationCode) payload.classification_code = classificationCode;
 
-            const response = await axios.post(
+            const response = await qpayClient.post(
                 `${QPAY_API_URL}/ebarimt_v3/create`,
                 payload,
                 {
@@ -379,7 +396,7 @@ export class QPayClient {
     async getEBarimt(paymentId: string) {
         const token = await this.getAccessToken();
         try {
-            const response = await axios.get(
+            const response = await qpayClient.get(
                 `${QPAY_API_URL}/ebarimt_v3/${paymentId}`,
                 {
                     headers: {
