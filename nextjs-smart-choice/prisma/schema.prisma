@@ -18,6 +18,8 @@ model Order {
   status           String      @default("PENDING_PAYMENT") // PENDING_PAYMENT, PAID, CANCELLED
   paymentReference String      @unique
   paymentMethod    String?     // "transfer" | "cash" | "qpay"
+  qpayInvoiceId    String?     @unique // QPay invoice ID
+  qpayQrText       String?     // QPay QR code text
   userId           String?
   user             User?       @relation(fields: [userId], references: [id])
   items            OrderItem[]

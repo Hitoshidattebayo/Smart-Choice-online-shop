@@ -3,6 +3,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 import Header from "../components/Header";
 import { CartProvider } from "../context/CartContext";
 import { Providers } from "../components/Providers";
+import { DevIndicator } from "../components/DevIndicator";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
             <body>
                 <Providers>
                     <CartProvider>
+                        <DevIndicator />
                         {/* Header */}
                         <Header />
 

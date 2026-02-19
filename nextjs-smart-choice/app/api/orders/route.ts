@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
 
         // Fetch orders for this user
         const orders = await prisma.order.findMany({
-            where: { userId },
+            where: {
+                userId,
+                status: 'PAID' // Only show paid orders
+            },
             orderBy: { createdAt: 'desc' },
             include: { items: true }
         });

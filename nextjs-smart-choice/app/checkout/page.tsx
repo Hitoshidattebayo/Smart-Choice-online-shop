@@ -6,25 +6,32 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
-import { createCartOrder } from '@/actions/order';
+import { createCartOrder, createQPayInvoice } from '@/actions/order';
 import CopyButton from '@/components/CopyButton';
+
+// ... imports
 
 export default function CheckoutPage() {
     const { cart, cartTotal, updateQuantity, removeFromCart, clearCart } = useCart();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedPayment, setSelectedPayment] = useState('transfer');
+
+    // Step state: 1 = Shipping, 2 = Payment
+    const [step, setStep] = useState(1);
+
+    // Payment is always QPay now
+    const selectedPayment = 'qpay';
     const [paymentRef, setPaymentRef] = useState('');
+    const [qpayInvoice, setQpayInvoice] = useState<any>(null);
+
+    const [isSuccess, setIsSuccess] = useState(false);
 
     useEffect(() => {
         // Generate reference: SC - [First 2 letters of first product] - [Random Number]
-        let prefix = 'GEN'; // Fallback
+        let prefix = 'GEN';
         if (cart.length > 0 && cart[0].name) {
-            // Get first 2 chars, remove non-alphanumeric if needed, but cyrillic is fine. 
-            // Just uppercase first 2 chars.
             prefix = cart[0].name.substring(0, 2).toUpperCase();
         }
-
         const randomNum = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
         setPaymentRef(`SC-${prefix}-${randomNum}`);
     }, [cart]);
@@ -43,9 +50,7 @@ export default function CheckoutPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // ... (existing imports)
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleCreateOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
@@ -54,26 +59,80 @@ export default function CheckoutPage() {
                 customerName: `${formData.firstName} ${formData.lastName}`,
                 phoneNumber: formData.phone,
                 email: formData.email,
-                address: `${formData.address}, ${formData.city}`, // Pass formatted address
+                address: `${formData.address}, ${formData.city}`,
                 totalAmount: cartTotal,
                 items: cart,
-                paymentReference: paymentRef, // Pass the specific reference we showed the user
-                paymentMethod: selectedPayment // Pass selected payment method
+                paymentReference: paymentRef,
+                paymentMethod: 'qpay' // Force QPay
             });
 
-            if (result.success) {
-                clearCart();
-                router.push(`/checkout/success?ref=${result.paymentReference}`);
+            if (result.success && result.orderId) {
+                // Immediate transition to Step 2
+                setStep(2);
+                setIsSubmitting(false); // Stop "Reading..." state
+
+                // Start async invoice generation
+                // We don't set isSubmitting true here because we want to show Step 2 UI
+                try {
+                    const invoiceResult = await createQPayInvoice(result.orderId);
+                    if (invoiceResult.success && invoiceResult.qpayInvoice) {
+                        setQpayInvoice(invoiceResult.qpayInvoice);
+                    } else {
+                        console.error('Failed to generate QPay invoice:', invoiceResult.error);
+                        // Optional: Show error in UI, but keep order created
+                    }
+                } catch (invError) {
+                    console.error('Invoice generation error:', invError);
+                }
+
+                // Start polling for payment status (same as before)
+                const checkInterval = setInterval(async () => {
+                    try {
+                        const checkRes = await fetch('/api/payment/qpay/check', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderId: result.orderId }),
+                        });
+                        const checkData = await checkRes.json();
+
+                        if (checkData.status === 'PAID') {
+                            clearInterval(checkInterval);
+                            setIsSuccess(true);
+                            clearCart();
+                            router.push(`/checkout/success?ref=${result.paymentReference}`);
+                        }
+                    } catch (err) {
+                        console.error('Polling error', err);
+                    }
+                }, 3000);
             } else {
                 alert('Failed to create order. Please try again.');
+                setIsSubmitting(false);
             }
         } catch (error) {
             console.error('Checkout error:', error);
             alert('An unexpected error occurred.');
-        } finally {
             setIsSubmitting(false);
         }
     };
+
+    const handleCheckPayment = async () => {
+        // ... (existing logic)
+        alert('Төлбөр шалгаж байна... Түр хүлээнэ үү.');
+    };
+
+    // Show loading state if success (prevent empty cart flash)
+    if (isSuccess) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <div className="text-center animate-pulse">
+                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold mb-4">Төлбөр амжилттай!</h2>
+                    <p className="text-gray-600">Таныг захиалгын хуудас руу шилжүүлж байна...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (cart.length === 0) {
         return (
@@ -91,19 +150,32 @@ export default function CheckoutPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
-            <div className="container mx-auto px-4">
-                <h1 className="text-3xl font-bold mb-8 text-center">Төлбөр төлөх</h1>
+            <div className="container mx-auto px-4 max-w-6xl">
+                {/* Progress Steps */}
+                <div className="flex justify-center mb-8">
+                    <div className="flex items-center">
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 1 ? 'bg-black text-white' : 'bg-gray-200 text-gray-500'}`}>
+                            1
+                        </div>
+                        <div className={`w-20 h-1 ${step >= 2 ? 'bg-black' : 'bg-gray-200'} mx-2`}></div>
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 2 ? 'bg-black text-white' : 'bg-gray-200 text-gray-500'}`}>
+                            2
+                        </div>
+                    </div>
+                </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Left Column: Shipping Form */}
+                    {/* Left Column */}
                     <div className="lg:col-span-7">
-                        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
+
+                        {/* Step 1: Shipping Info */}
+                        <div className={`bg-white rounded-2xl shadow-sm p-6 mb-6 ${step === 1 ? 'block' : 'hidden'}`}>
                             <div className="flex items-center gap-2 mb-6 border-b pb-4">
                                 <Truck className="text-black" />
                                 <h2 className="text-xl font-bold">Хүргэлтийн мэдээлэл</h2>
                             </div>
 
-                            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-4">
+                            <form id="shipping-form" onSubmit={handleCreateOrder} className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Нэр</label>
@@ -200,81 +272,61 @@ export default function CheckoutPage() {
                             </form>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm p-6">
-                            <div className="flex items-center gap-2 mb-6 border-b pb-4">
-                                <CreditCard className="text-black" />
-                                <h2 className="text-xl font-bold">Төлбөрийн хэрэгсэл</h2>
+                        {/* Step 2: Payment (QPay Only) */}
+                        <div className={`bg-white rounded-2xl shadow-sm p-6 ${step === 2 ? 'block' : 'hidden'}`}>
+                            <div className="flex items-center justify-between gap-2 mb-6 border-b pb-4">
+                                <div className="flex items-center gap-2">
+                                    <CreditCard className="text-black" />
+                                    <h2 className="text-xl font-bold">Төлбөр төлөх</h2>
+                                </div>
+                                <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-black underline">
+                                    Мэдээлэл засах
+                                </button>
                             </div>
 
-                            <div className="space-y-3">
-                                <label className={`flex flex-col p-4 border rounded-xl cursor-pointer transition-colors ${selectedPayment === 'transfer' ? 'border-black bg-gray-50' : 'hover:border-black'}`}>
-                                    <div className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            name="payment"
-                                            value="transfer"
-                                            checked={selectedPayment === 'transfer'}
-                                            onChange={(e) => setSelectedPayment(e.target.value)}
-                                            className="w-5 h-5 text-black"
+                            {/* QPay Section - Always Visible in Step 2 */}
+                            {!qpayInvoice ? (
+                                <div className="p-6 border rounded-xl bg-gray-50 text-center flex flex-col items-center justify-center min-h-[300px]">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
+                                    <h3 className="font-bold text-lg mb-2">QR код үүсгэж байна...</h3>
+                                    <p className="text-gray-600 text-sm">Түр хүлээнэ үү</p>
+                                </div>
+                            ) : (
+                                <div className="mt-6 p-6 border-2 border-green-500 rounded-xl bg-green-50 text-center">
+                                    <h3 className="font-bold text-lg mb-4">QPay QR код</h3>
+                                    <div className="flex justify-center mb-4 bg-white p-2 rounded-lg inline-block mx-auto shadow-sm">
+                                        <Image
+                                            src={`data:image/png;base64,${qpayInvoice.qr_image}`}
+                                            alt="QPay QR Code"
+                                            width={240}
+                                            height={240}
                                         />
-                                        <span className="ml-3 font-medium">Дансаар</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-4 font-medium">
+                                        QR кодыг банкны аппликэйшнээр уншуулж төлбөрөө төлнө үү.
+                                    </p>
+                                    <div className="flex items-center justify-center gap-2 text-sm font-bold animate-pulse text-green-700 bg-green-100 py-2 px-4 rounded-full inline-flex">
+                                        <span className="w-2 h-2 bg-green-700 rounded-full animate-bounce"></span>
+                                        Төлбөр хүлээж байна...
                                     </div>
 
-                                    {selectedPayment === 'transfer' && (
-                                        <div className="mt-4 pl-8">
-                                            <div className="bg-white p-4 rounded-lg border border-gray-200 text-sm space-y-3">
-                                                <div className="flex justify-between border-b pb-2">
-                                                    <span className="text-gray-500">Банк:</span>
-                                                    <span className="font-medium text-right">Хаан Банк</span>
-                                                </div>
-                                                <div className="space-y-1 border-b pb-2">
-                                                    <span className="text-gray-500 block">Дансны дугаар:</span>
-                                                    <div className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                                                        <span className="font-mono font-bold">MN420005005019333896</span>
-                                                        <CopyButton text="MN420005005019333896" className="text-gray-500 hover:text-black" />
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between border-b pb-2">
-                                                    <span className="text-gray-500">Данс эзэмшигч:</span>
-                                                    <span className="font-medium text-right">Баясгалан Цолмон</span>
-                                                </div>
-
-                                                <div className="space-y-1 pt-1">
-                                                    <p className="text-xs text-gray-500 font-bold uppercase">Гүйлгээний утга (ЗААВАЛ БИЧИХ)</p>
-                                                    <div className="flex items-center justify-between bg-gray-100 p-3 rounded-md border border-gray-200">
-                                                        <span className="font-mono font-bold text-lg text-black">{paymentRef}</span>
-                                                        <CopyButton text={paymentRef} className="text-gray-500 hover:text-black" label="ХУУЛАХ" showLabel={true} />
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 mt-2 leading-tight">
-                                                        * Та төлбөр шилжүүлэхдээ гүйлгээний утга хэсэгт энэ кодыг бичнэ үү. Ингэснээр бид таны төлбөрийг автоматаар баталгаажуулах болно.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </label>
-                                <label className="flex items-center p-4 border rounded-xl cursor-pointer hover:border-black transition-colors opacity-60">
-                                    <input
-                                        type="radio"
-                                        name="payment"
-                                        value="qpay"
-                                        disabled
-                                        className="w-5 h-5 text-black"
-                                    />
-                                    <span className="ml-3 font-medium text-gray-500">QPay /тун удахгүй/</span>
-                                </label>
-                                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${selectedPayment === 'cash' ? 'border-black' : 'hover:border-black'}`}>
-                                    <input
-                                        type="radio"
-                                        name="payment"
-                                        value="cash"
-                                        checked={selectedPayment === 'cash'}
-                                        onChange={(e) => setSelectedPayment(e.target.value)}
-                                        className="w-5 h-5 text-black"
-                                    />
-                                    <span className="ml-3 font-medium">Бэлнээр</span>
-                                </label>
-                            </div>
+                                    {/* Mobile Deep Links */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">
+                                        {qpayInvoice.urls?.map((url: any) => (
+                                            <a
+                                                key={url.name}
+                                                href={url.link}
+                                                className="flex items-center justify-center p-3 bg-white border border-gray-200 rounded-lg text-xs font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <img src={url.logo} alt={url.name} className="w-5 h-5 mr-2 object-contain" />
+                                                <span className="truncate">{url.name}</span>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -321,22 +373,43 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                form="checkout-form"
-                                disabled={isSubmitting}
-                                className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isSubmitting ? (
-                                    <>Боловсруулж байна...</>
-                                ) : (
-                                    <>Захиалах <CheckCircle size={20} /></>
-                                )}
-                            </button>
+                            {/* Buttons based on Step */}
+                            {step === 1 ? (
+                                <button
+                                    type="submit"
+                                    form="shipping-form"
+                                    disabled={isSubmitting}
+                                    className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isSubmitting ? (
+                                        <>Уншиж байна...</>
+                                    ) : (
+                                        <>Төлбөр төлөх <CheckCircle size={20} /></>
+                                    )}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleCheckPayment}
+                                    className="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-colors mt-6 flex items-center justify-center gap-2"
+                                >
+                                    Төлбөр шалгах <CheckCircle size={20} />
+                                </button>
+                            )}
 
                             <p className="text-xs text-gray-400 text-center mt-4">
-                                Төлбөр найдвартай хийгдэнэ. Та манай үйлчилгээний нөхцөлийг зөвшөөрч байна.
+                                Таны мэдээлэл нууцлагдмал байх болно.
                             </p>
+
+                            {/* Shipping info summary in Step 2 */}
+                            {step === 2 && (
+                                <div className="mt-6 pt-6 border-t">
+                                    <h3 className="text-sm font-bold mb-2 text-gray-500">Хүргэлтийн хаяг:</h3>
+                                    <p className="text-sm text-gray-800">
+                                        {formData.city}, {formData.address}<br />
+                                        {formData.phone}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

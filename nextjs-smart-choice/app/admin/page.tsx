@@ -29,6 +29,7 @@ export default async function AdminPage({
                 { paymentReference: { contains: query } },
                 { customerName: { contains: query } },
             ],
+            status: 'PAID', // Only show valid paid orders
             // Note: We deliberately do NOT filter by 'deletedAt' here because we want to show deleted items in the Trash view.
         },
         orderBy: { createdAt: 'desc' },
