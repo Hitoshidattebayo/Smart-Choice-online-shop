@@ -23,6 +23,7 @@ export default function CheckoutPage() {
     const selectedPayment = 'qpay';
     const [paymentRef, setPaymentRef] = useState('');
     const [qpayInvoice, setQpayInvoice] = useState<any>(null);
+    const [qpayError, setQpayError] = useState<string | null>(null);
 
     const [isSuccess, setIsSuccess] = useState(false);
 
@@ -73,17 +74,23 @@ export default function CheckoutPage() {
 
                 // Start async invoice generation
                 // We don't set isSubmitting true here because we want to show Step 2 UI
-                try {
-                    const invoiceResult = await createQPayInvoice(result.orderId);
-                    if (invoiceResult.success && invoiceResult.qpayInvoice) {
-                        setQpayInvoice(invoiceResult.qpayInvoice);
-                    } else {
-                        console.error('Failed to generate QPay invoice:', invoiceResult.error);
-                        // Optional: Show error in UI, but keep order created
+                const fetchInvoice = async () => {
+                    setQpayError(null);
+                    try {
+                        const invoiceResult = await createQPayInvoice(result.orderId);
+                        if (invoiceResult.success && invoiceResult.qpayInvoice) {
+                            setQpayInvoice(invoiceResult.qpayInvoice);
+                        } else {
+                            console.error('Failed to generate QPay invoice:', invoiceResult.error);
+                            setQpayError(invoiceResult.error || 'Нэхэмжлэх үүсгэхэд алдаа гарлаа. (QPay Error)');
+                        }
+                    } catch (invError) {
+                        console.error('Invoice generation error:', invError);
+                        setQpayError('Сүлжээний алдаа гарлаа. Дахин оролдоно уу.');
                     }
-                } catch (invError) {
-                    console.error('Invoice generation error:', invError);
-                }
+                };
+
+                fetchInvoice();
 
                 // Start polling for payment status (same as before)
                 const checkInterval = setInterval(async () => {
@@ -285,7 +292,23 @@ export default function CheckoutPage() {
                             </div>
 
                             {/* QPay Section - Always Visible in Step 2 */}
-                            {!qpayInvoice ? (
+                            {qpayError ? (
+                                <div className="p-6 border rounded-xl bg-red-50 text-center flex flex-col items-center justify-center min-h-[300px]">
+                                    <div className="text-red-500 mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="font-bold text-lg mb-2 text-red-700">Алдаа гарлаа</h3>
+                                    <p className="text-red-600 text-sm mb-4">{qpayError}</p>
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="px-4 py-2 bg-white border border-red-200 rounded-lg text-red-600 hover:bg-red-50 text-sm font-medium"
+                                    >
+                                        Дахин ачаалах
+                                    </button>
+                                </div>
+                            ) : !qpayInvoice ? (
                                 <div className="p-6 border rounded-xl bg-gray-50 text-center flex flex-col items-center justify-center min-h-[300px]">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
                                     <h3 className="font-bold text-lg mb-2">QR код үүсгэж байна...</h3>
