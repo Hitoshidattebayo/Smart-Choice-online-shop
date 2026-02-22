@@ -1,8 +1,13 @@
+export interface ProductVariantValue {
+    name: string;
+    value: string;
+}
+
 export interface ProductVariant {
     id: string;
     label: string;
     type: 'square' | 'rect' | 'color'; // square=small box, rect=wide box, color=circle
-    values: string[];
+    values: (string | ProductVariantValue)[];
 }
 
 export interface Product {
@@ -18,7 +23,8 @@ export interface Product {
     badge?: string;
     variants?: ProductVariant[];
     specifications?: { label: string; value: string }[];
-    stockStatus?: string;
+    stockStatus?: 'instock' | 'preorder' | 'outOfStock';
+    stockQuantity?: number;
     productVideos?: string[];
     videoSectionTitle?: string;
     faqs?: { question: string; answer: string }[];
@@ -47,7 +53,11 @@ export const products: Product[] = [
                 id: 'color',
                 label: 'Product Color Selection',
                 type: 'color',
-                values: ['#90EE90', '#8B4513', '#FFFFFF'] // Light Green, Saddle Brown, White
+                values: [
+                    { name: 'Цайвар ногоон', value: '#90EE90' },
+                    { name: 'Бор', value: '#8B4513' },
+                    { name: 'Цагаан', value: '#FFFFFF' }
+                ]
             }
         ],
         specifications: []

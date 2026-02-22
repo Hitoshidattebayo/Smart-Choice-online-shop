@@ -34,6 +34,13 @@ export default defineType({
             initialValue: 'instock'
         }),
         defineField({
+            name: 'stockQuantity',
+            title: 'Stock Quantity (Үлдэгдэл тоо)',
+            type: 'number',
+            description: 'The number of items currently in stock. If 0, the product will automatically show as Out of Stock.',
+            initialValue: 0
+        }),
+        defineField({
             name: 'price',
             title: 'Price',
             type: 'number',
@@ -78,8 +85,22 @@ export default defineType({
                         {
                             name: 'values',
                             type: 'array',
-                            title: 'Values',
-                            of: [{ type: 'string' }]
+                            of: [
+                                {
+                                    type: 'object',
+                                    fields: [
+                                        { name: 'name', type: 'string', title: 'Name (e.g. Цагаан, S)' },
+                                        { name: 'value', type: 'string', title: 'Value (e.g. #FFFFFF, S)' }
+                                    ],
+                                    // Make it look nice in the Studio list
+                                    preview: {
+                                        select: {
+                                            title: 'name',
+                                            subtitle: 'value'
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     ]
                 }

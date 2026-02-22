@@ -37,7 +37,7 @@ const OrderSchema = z.object({
     totalAmount: z.number(),
 });
 
-import { client } from '@/sanity/client';
+import { client, writeClient } from '@/sanity/client';
 import { qpay } from '@/lib/qpay';
 
 export async function createCartOrder(data: {
@@ -75,28 +75,29 @@ export async function createCartOrder(data: {
         console.log('--- Order Creation Debug Start ---');
         console.log('Client Items:', JSON.stringify(data.items, null, 2));
 
-        const productIds = data.items.map((item: any) => item.id);
+        // Extract real product ID (cart item id might be "productId_Color-Red")
+        const productIds = data.items.map((item: any) => item.id.split('_')[0]);
 
         // Start both requests in parallel
         const [products] = await Promise.all([
-            client.fetch(`*[_type == "product" && _id in $ids]{_id, price, name, classificationCode}`, { ids: productIds }),
+            client.fetch(`*[_type == "product" && _id in $ids]{_id, price, name, classificationCode, stockQuantity, stockStatus}`, { ids: productIds }),
             // qpay.ensureToken() removed - moved to createQPayInvoice
         ]);
 
         console.log('Sanity Products:', JSON.stringify(products, null, 2));
 
         // Create a map for faster lookup
-        interface SanityProduct { _id: string; price: number; name: string; classificationCode?: string; }
+        interface SanityProduct { _id: string; price: number; name: string; classificationCode?: string; stockQuantity?: number; }
         const productMap = new Map<string, SanityProduct>(
             products.map((p: any) => [p._id, p as SanityProduct])
         );
 
         // 2. Validate and Recalculate Total
         let calculatedTotal = 0;
-        const ebarimtLines: any[] = [];
 
         const validatedItems = data.items.map((item: any) => {
-            const product = productMap.get(item.id);
+            const baseProductId = item.id.split('_')[0];
+            const product = productMap.get(baseProductId);
             if (!product) {
                 throw new Error(`Product not found: ${item.name}`);
             }
@@ -104,36 +105,13 @@ export async function createCartOrder(data: {
             const freshPrice = product.price;
             calculatedTotal += freshPrice * item.quantity;
 
-            // EBarimt Logic
-            // Calculate VAT (10% inclusive)
-            // VAT = TotalPrice - (TotalPrice / 1.1) = TotalPrice / 11
-            const lineTotal = freshPrice * item.quantity;
-            const vatAmount = lineTotal / 11;
-            const classificationCode = product.classificationCode || '0111100'; // Default to generic goods if missing
-
-            ebarimtLines.push({
-                tax_product_code: "",
-                line_description: product.name,
-                line_quantity: item.quantity.toFixed(2),
-                line_unit_price: freshPrice.toFixed(2),
-                note: "",
-                classification_code: classificationCode,
-                taxes: [
-                    {
-                        tax_code: "VAT",
-                        description: "НӨАТ",
-                        amount: Number(vatAmount.toFixed(4)), // 4 decimal places as per example
-                        note: "НӨАТ"
-                    }
-                ]
-            });
-
             console.log(`Item: ${item.name} | Client Price: ${item.price} | Fresh Price: ${freshPrice} | Qty: ${item.quantity}`);
 
             return {
                 ...item,
                 price: freshPrice, // Use fresh price
-                productName: product.name // Use fresh name
+                productName: item.name, // Keep the name with variants from the client
+                baseProductId // pass base id for sanity patch later
             };
         });
 
@@ -171,6 +149,42 @@ export async function createCartOrder(data: {
             },
         });
 
+        // 4. Update Inventory in Sanity (Non-blocking)
+        try {
+            console.log('Starting Sanity Inventory Update...');
+
+            // Deduplicate items to handle multiple variants of the same product
+            const stockUpdates = new Map<string, number>();
+            validatedItems.forEach(item => {
+                const currentQty = stockUpdates.get(item.baseProductId) || 0;
+                stockUpdates.set(item.baseProductId, currentQty + item.quantity);
+            });
+
+            const updatePromises = Array.from(stockUpdates.entries()).map(async ([productId, quantityToDeduct]) => {
+                const product = productMap.get(productId);
+                if (!product) return;
+
+                // Fire and forget patch
+                const currentStock = product.stockQuantity || 0;
+                const newStock = Math.max(0, currentStock - quantityToDeduct);
+
+                const patch = writeClient.patch(productId).dec({ stockQuantity: quantityToDeduct });
+
+                // If it hits 0, auto-update the status
+                if (newStock === 0) {
+                    patch.set({ stockStatus: 'outOfStock' });
+                }
+
+                await patch.commit();
+                console.log(`Updated stock for ${productId}: -${quantityToDeduct}`);
+            });
+
+            await Promise.allSettled(updatePromises);
+        } catch (inventoryError) {
+            console.error('Failed to update Sanity inventory:', inventoryError);
+            // Non-blocking, so we don't throw
+        }
+
         // Admin notification email is now deferred until payment is confirmed (in markAsPaid)
 
         return {
@@ -201,24 +215,6 @@ export async function createQPayInvoice(orderId: string) {
 
         const description = `Order #${order.paymentReference}`;
 
-        // EBarimt Logic (Simplified reconstruction)
-        // VAT = TotalPrice - (TotalPrice / 1.1) = TotalPrice / 11
-        const vatAmount = order.totalAmount / 11;
-        const ebarimtLines = [{
-            tax_product_code: "",
-            line_description: "Order " + order.paymentReference,
-            line_quantity: "1.00",
-            line_unit_price: order.totalAmount.toFixed(2),
-            note: "",
-            classification_code: "0111100",
-            taxes: [{
-                tax_code: "VAT",
-                description: "НӨАТ",
-                amount: Number(vatAmount.toFixed(4)),
-                note: "НӨАТ"
-            }]
-        }];
-
         const qpayInvoice = await qpay.createInvoice(
             order.paymentReference,
             order.totalAmount,
@@ -227,12 +223,9 @@ export async function createQPayInvoice(orderId: string) {
                 name: order.customerName,
                 email: order.email || undefined,
                 phone: order.phoneNumber
-            },
-            {
-                taxType: "1",
-                districtCode: "0101",
-                lines: ebarimtLines
             }
+            // Note: EBarimt lines were removed as they caused QPay to charge extra
+            // (tax was added on top of line_unit_price instead of being inclusive)
         );
 
         // Update order with new invoice info

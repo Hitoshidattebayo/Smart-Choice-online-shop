@@ -20,6 +20,10 @@ export default function ProductDetails({ product }: { product: Product }) {
     // Docking logic for mobile buttons
     const staticButtonsRef = useRef<HTMLDivElement>(null);
 
+    // Inventory check
+    const isOutOfStock = product.stockQuantity !== undefined ? product.stockQuantity <= 0 : product.stockStatus === 'outOfStock';
+    const maxQuantity = product.stockQuantity ?? 99; // Default upper limit if tracking isn't set
+
     useEffect(() => {
         const checkSticky = () => {
             if (staticButtonsRef.current) {
@@ -64,9 +68,37 @@ export default function ProductDetails({ product }: { product: Product }) {
         if (action === 'buy') setIsBuyNowLoading(true);
 
         try {
+            // Build a string for the selected variants to append to the name
+            const variantValues = Object.entries(selections)
+                .map(([variantId, value]) => {
+                    // Try to find the human readable label for the variant
+                    const variant = product.variants?.find(v => v.id === variantId);
+
+                    // Fallback dictionary for common variant IDs if Sanity label is missing
+                    const labelDictionary: Record<string, string> = {
+                        'color': 'Өнгө',
+                        'size': 'Хэмжээ',
+                        'material': 'Материал',
+                        'undefined': 'Өнгө' // Catch-all for missing IDs from Sanity that default to color
+                    };
+
+                    // Clean the variantId just in case it's actually the string 'undefined'
+                    const safeVariantId = String(variantId) === 'undefined' ? 'undefined' : variantId;
+                    const displayLabel = variant?.label || labelDictionary[safeVariantId] || safeVariantId;
+
+                    return `${displayLabel}: ${value}`;
+                });
+
+            const variantSuffix = variantValues.length > 0 ? ` (${variantValues.join(', ')})` : '';
+            const finalName = `${product.name}${variantSuffix}`;
+
+            // Generate a unique ID for this specific variant combination
+            const selectionKey = Object.keys(selections).sort().map(key => `${key}-${selections[key]}`).join('_');
+            const cartItemId = selectionKey ? `${product.id}_${selectionKey}` : product.id;
+
             addToCart({
-                id: product.id,
-                name: product.name,
+                id: cartItemId,     // Unique ID for the variant in cart
+                name: finalName,      // Name includes selected colors/sizes
                 price: product.price,
                 image: product.image,
                 quantity: quantity || 1,
@@ -166,11 +198,11 @@ export default function ProductDetails({ product }: { product: Product }) {
                             {/* Product Status */}
                             {/* Product Status */}
                             <div className="flex flex-wrap gap-2 mb-3">
-                                {product.stockStatus === 'outOfStock' ? (
+                                {isOutOfStock ? (
                                     <span className="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                         Дууссан
                                     </span>
-                                ) : product.stockStatus === 'preOrder' ? (
+                                ) : product.stockStatus === 'preorder' ? (
                                     <span className="bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                         Захиалгаар
                                     </span>
@@ -233,21 +265,26 @@ export default function ProductDetails({ product }: { product: Product }) {
 
                                     <div className="flex flex-wrap gap-3">
                                         {variant.values?.map((val, vIdx) => {
-                                            const isSelected = selections[variant.id] === val;
+                                            // Handle both old string format and new { name, value } object format
+                                            const isObject = typeof val === 'object' && val !== null;
+                                            const valName = isObject ? (val as any).name : val;
+                                            const valCode = isObject ? (val as any).value : val;
+
+                                            const isSelected = selections[variant.id] === valName;
 
                                             // Render logic based on type (color vs other)
                                             if (variant.type === 'color') {
                                                 return (
                                                     <button
                                                         key={vIdx}
-                                                        onClick={() => handleSelection(variant.id, val)}
+                                                        onClick={() => handleSelection(variant.id, valName)}
                                                         className={`w-10 h-10 rounded-full border-2 transition-all ${isSelected ? 'border-black p-0.5' : 'border-transparent hover:border-gray-300'
                                                             }`}
-                                                        title={val}
+                                                        title={valName}
                                                     >
                                                         <span
                                                             className="block w-full h-full rounded-full border border-gray-200"
-                                                            style={{ backgroundColor: val }}
+                                                            style={{ backgroundColor: valCode }}
                                                         />
                                                     </button>
                                                 );
@@ -256,13 +293,13 @@ export default function ProductDetails({ product }: { product: Product }) {
                                             return (
                                                 <button
                                                     key={vIdx}
-                                                    onClick={() => handleSelection(variant.id, val)}
+                                                    onClick={() => handleSelection(variant.id, valName)}
                                                     className={`min-w-[4rem] px-4 py-3 text-sm font-bold rounded-lg border transition-all uppercase ${isSelected
                                                         ? 'border-black bg-black text-white'
                                                         : 'border-gray-200 text-gray-700 hover:border-black'
                                                         }`}
                                                 >
-                                                    {val}
+                                                    {valName}
                                                 </button>
                                             );
                                         })}
@@ -285,8 +322,9 @@ export default function ProductDetails({ product }: { product: Product }) {
                                     </button>
                                     <span className="flex-1 text-center font-bold text-gray-900">{quantity}</span>
                                     <button
-                                        onClick={() => setQuantity(quantity + 1)}
-                                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors"
+                                        onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                                        disabled={isOutOfStock || quantity >= maxQuantity}
+                                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors disabled:opacity-50"
                                     >
                                         <Plus size={16} />
                                     </button>
@@ -297,14 +335,15 @@ export default function ProductDetails({ product }: { product: Product }) {
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => handleAction('cart')}
-                                    className="flex-1 h-12 border-2 border-black bg-white text-black text-sm font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-all rounded-lg shadow-sm hover:shadow-md"
+                                    disabled={isOutOfStock}
+                                    className="flex-1 h-12 border-2 border-black bg-white text-black text-sm font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-all rounded-lg shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Сагсанд хийх
                                 </button>
                                 <button
                                     onClick={() => handleAction('buy')}
-                                    disabled={isBuyNowLoading}
-                                    className="flex-1 h-12 bg-black text-white text-sm font-bold uppercase tracking-wider hover:bg-gray-900 transition-all rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center"
+                                    disabled={isBuyNowLoading || isOutOfStock}
+                                    className="flex-1 h-12 bg-black text-white text-sm font-bold uppercase tracking-wider hover:bg-gray-900 transition-all rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                 </button>
@@ -317,14 +356,15 @@ export default function ProductDetails({ product }: { product: Product }) {
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => handleAction('cart')}
-                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                        disabled={isOutOfStock}
+                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <ShoppingBag size={24} strokeWidth={1.5} />
                                     </button>
                                     <button
                                         onClick={() => handleAction('buy')}
-                                        disabled={isBuyNowLoading}
-                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                        disabled={isBuyNowLoading || isOutOfStock}
+                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                     </button>
@@ -341,14 +381,15 @@ export default function ProductDetails({ product }: { product: Product }) {
                                 <div className="flex gap-3">
                                     <button
                                         onClick={() => handleAction('cart')}
-                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                        disabled={isOutOfStock}
+                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <ShoppingBag size={24} strokeWidth={1.5} />
                                     </button>
                                     <button
                                         onClick={() => handleAction('buy')}
-                                        disabled={isBuyNowLoading}
-                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                        disabled={isBuyNowLoading || isOutOfStock}
+                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                     </button>

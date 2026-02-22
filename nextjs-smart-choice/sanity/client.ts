@@ -8,6 +8,14 @@ export const client = createClient({
     useCdn: false,
 });
 
+export const writeClient = createClient({
+    projectId: "eiivfy8o",
+    dataset: "production",
+    apiVersion: "2024-01-01",
+    useCdn: false,
+    token: process.env.SANITY_API_TOKEN,
+});
+
 const builder = imageUrlBuilder(client);
 
 export function urlFor(source: any) {
