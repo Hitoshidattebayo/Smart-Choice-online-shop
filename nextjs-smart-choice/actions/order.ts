@@ -168,11 +168,14 @@ export async function createCartOrder(data: {
                 const currentStock = product.stockQuantity || 0;
                 const newStock = Math.max(0, currentStock - quantityToDeduct);
 
-                const patch = writeClient.patch(productId).dec({ stockQuantity: quantityToDeduct });
+                let patch = writeClient
+                    .patch(productId)
+                    .setIfMissing({ stockQuantity: 0 })
+                    .dec({ stockQuantity: quantityToDeduct });
 
                 // If it hits 0, auto-update the status
                 if (newStock === 0) {
-                    patch.set({ stockStatus: 'outOfStock' });
+                    patch = patch.set({ stockStatus: 'outOfStock' });
                 }
 
                 await patch.commit();
