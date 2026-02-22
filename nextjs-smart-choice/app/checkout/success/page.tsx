@@ -43,14 +43,17 @@ export default async function SuccessPage({ searchParams }: { searchParams: { re
 
                 <p className="text-gray-600 mb-8">
                     {isPaid
-                        ? 'Таны захиалга баталгаажсан байна. Бид удахгүй хүргэж өгөх болно.'
+                        ? 'Таны захиалга баталгаажсан байна. Манай хүргэлтүүд 24 цагийн дотор хүргэгдэх болно.'
                         : 'Таны захиалга үүссэн. Төлбөрөө шилжүүлсний дараа бид тантай холбогдон хүргэлтийг баталгаажуулах болно.'}
                 </p>
 
                 <div className="bg-gray-50 p-4 rounded-xl text-left mb-8 border border-gray-100">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-gray-500 text-sm">Захиалгын дугаар:</span>
-                        <span className="font-mono font-bold text-lg">{reference}</span>
+                        <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-lg">{reference}</span>
+                            <CopyButton text={reference} label="" />
+                        </div>
                     </div>
                     {!isPaid && (order.paymentMethod === 'transfer') && (
                         <div className="mt-4 pt-4 border-t border-gray-200">

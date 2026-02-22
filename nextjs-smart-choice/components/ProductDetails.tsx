@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Minus, Plus, Loader2, Heart, Share2, Star } from 'lucide-react';
+import { Minus, Plus, Loader2, Heart, Star, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Product } from '../lib/products';
 import { useCart } from '@/context/CartContext';
-import DeliveryInfoBar from './DeliveryInfoBar';
+
 
 export default function ProductDetails({ product }: { product: Product }) {
     const { addToCart, openCart } = useCart();
@@ -16,7 +16,31 @@ export default function ProductDetails({ product }: { product: Product }) {
     const [selections, setSelections] = useState<Record<string, string>>({});
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isBuyNowLoading, setIsBuyNowLoading] = useState(false);
-    const [isSticky, setIsSticky] = useState(false); // To detect if sticky bar should show if we want conditional visibility
+    const [isSticky, setIsSticky] = useState(false); // Docking state
+    // Docking logic for mobile buttons
+    const staticButtonsRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const checkSticky = () => {
+            if (staticButtonsRef.current) {
+                const rect = staticButtonsRef.current.getBoundingClientRect();
+                // Show sticky footer ONLY if static buttons are strictly BELOW the viewport
+                // Using a small buffer (0 or slightly negative) can help specific devices
+                // If rect.top > window.innerHeight, it's below the fold -> show sticky
+                setIsSticky(rect.top > window.innerHeight);
+            }
+        };
+
+        // Check immediately and on scroll/resize
+        checkSticky();
+        window.addEventListener('scroll', checkSticky, { passive: true });
+        window.addEventListener('resize', checkSticky, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', checkSticky);
+            window.removeEventListener('resize', checkSticky);
+        };
+    }, []);
 
     // Images logic
     const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
@@ -76,7 +100,7 @@ export default function ProductDetails({ product }: { product: Product }) {
 
     return (
         <div className="min-h-screen font-sans bg-white pb-24 md:pb-0">
-            <DeliveryInfoBar />
+
 
             <div className="max-w-[1440px] mx-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 lg:gap-16">
@@ -103,28 +127,21 @@ export default function ProductDetails({ product }: { product: Product }) {
                             </div>
 
                             {/* Mobile Dots */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                                {images.map((_, idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`w-2 h-2 rounded-full transition-all duration-300 ${activeImageIndex === idx ? 'bg-black w-4' : 'bg-white/50 backdrop-blur-sm'}`}
-                                    />
-                                ))}
+                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
+                                <div className="flex items-center justify-center gap-2 bg-white px-2 py-1.5 rounded-full shadow-sm border border-gray-100">
+                                    {images.map((_, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${activeImageIndex === idx
+                                                ? 'w-6 bg-gray-800'
+                                                : 'w-1.5 bg-gray-300'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
 
-                            {/* Mobile Badges */}
-                            <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none">
-                                {product.stockStatus === 'outOfStock' && (
-                                    <span className="bg-white/90 backdrop-blur text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                                        Sold Out
-                                    </span>
-                                )}
-                                {product.originalPrice && product.originalPrice > product.price && (
-                                    <span className="bg-[#fa3e3e] text-white text-xs font-bold px-3 py-1 uppercase tracking-wider">
-                                        Sale
-                                    </span>
-                                )}
-                            </div>
+                            {/* Mobile Badges Removed */}
                         </div>
 
                         {/* Desktop Grid */}
@@ -146,6 +163,24 @@ export default function ProductDetails({ product }: { product: Product }) {
 
                         {/* Header Section */}
                         <div className="space-y-2">
+                            {/* Product Status */}
+                            {/* Product Status */}
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {product.stockStatus === 'outOfStock' ? (
+                                    <span className="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Дууссан
+                                    </span>
+                                ) : product.stockStatus === 'preOrder' ? (
+                                    <span className="bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Захиалгаар
+                                    </span>
+                                ) : (
+                                    <span className="bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        Бэлэн байгаа
+                                    </span>
+                                )}
+                            </div>
+
                             <div className="flex justify-between items-start">
                                 <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-gray-900 leading-none">
                                     {product.name}
@@ -155,16 +190,13 @@ export default function ProductDetails({ product }: { product: Product }) {
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-                                <span>Oversized Fit</span> {/* Static for now, represents subtitle */}
-                            </div>
 
                             <div className="flex items-center gap-3 pt-2">
                                 <span className="text-2xl font-bold text-gray-900">
                                     {product.price.toLocaleString()}₮
                                 </span>
                                 {product.originalPrice && (
-                                    <span className="text-lg text-gray-400 line-through">
+                                    <span className="text-lg text-red-500 line-through">
                                         {product.originalPrice.toLocaleString()}₮
                                     </span>
                                 )}
@@ -173,10 +205,19 @@ export default function ProductDetails({ product }: { product: Product }) {
                             <div className="flex items-center gap-1 text-sm pt-1">
                                 <div className="flex text-black">
                                     {[...Array(5)].map((_, i) => (
-                                        <Star key={i} size={14} fill={i < 4 ? "black" : "none"} strokeWidth={2} />
+                                        <Star key={i} size={14} fill={i < Math.floor(product.rating || 5) ? "black" : "none"} strokeWidth={2} />
                                     ))}
                                 </div>
-                                <span className="text-gray-500 ml-1 font-medium underline cursor-pointer">4.8 (7 Reviews)</span>
+                                <span className="text-gray-500 ml-1 font-medium underline cursor-pointer">{product.rating || 5.0} ({product.reviews || 0} Үнэлгээ)</span>
+                            </div>
+                        </div>
+
+
+                        {/* Description Section */}
+                        <div className="space-y-3 border-b border-gray-100 pb-6">
+                            <h3 className="text-sm font-bold uppercase tracking-wider">Дэлгэрэнгүй</h3>
+                            <div className="text-sm text-gray-600 leading-relaxed space-y-2 whitespace-pre-wrap">
+                                {product.description}
                             </div>
                         </div>
 
@@ -186,7 +227,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                                 <div key={idx} className="space-y-3">
                                     <div className="flex justify-between items-center">
                                         <span className="text-sm font-bold uppercase tracking-wider text-gray-900">
-                                            {variant.label}: <span className="text-gray-500 font-normal normal-case">{selections[variant.id] || 'Select'}</span>
+                                            {variant.label}: <span className="text-gray-500 font-normal normal-case">{selections[variant.id] || 'Сонгоогүй'}</span>
                                         </span>
                                     </div>
 
@@ -217,8 +258,8 @@ export default function ProductDetails({ product }: { product: Product }) {
                                                     key={vIdx}
                                                     onClick={() => handleSelection(variant.id, val)}
                                                     className={`min-w-[4rem] px-4 py-3 text-sm font-bold rounded-lg border transition-all uppercase ${isSelected
-                                                            ? 'border-black bg-black text-white'
-                                                            : 'border-gray-200 text-gray-700 hover:border-black'
+                                                        ? 'border-black bg-black text-white'
+                                                        : 'border-gray-200 text-gray-700 hover:border-black'
                                                         }`}
                                                 >
                                                     {val}
@@ -230,66 +271,101 @@ export default function ProductDetails({ product }: { product: Product }) {
                             ))}
                         </div>
 
-                        {/* Desktop Quantity & Add to Cart */}
-                        <div className="hidden md:flex flex-col gap-3 pt-4">
-                            <button
-                                onClick={() => handleAction('cart')}
-                                className="w-full h-14 bg-black text-white text-base font-bold uppercase tracking-wider hover:bg-gray-900 transition-all rounded-md flex items-center justify-center gap-2"
-                            >
-                                <span className="font-extrabold">Add To Bag</span>
-                                <span className="w-1 h-1 bg-white rounded-full mx-1" />
-                                <span>{product.price.toLocaleString()}₮</span>
-                            </button>
+                        {/* Desktop Quantity & Buttons (Restored) */}
+                        <div className="hidden md:flex flex-col gap-6 pt-4">
+                            {/* Quantity Selector */}
+                            <div className="flex items-center gap-4">
+                                <span className="font-bold text-sm uppercase tracking-wider text-gray-900">Тоо ширхэг:</span>
+                                <div className="flex items-center border border-gray-200 rounded-lg h-10 w-32">
+                                    <button
+                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors"
+                                    >
+                                        <Minus size={16} />
+                                    </button>
+                                    <span className="flex-1 text-center font-bold text-gray-900">{quantity}</span>
+                                    <button
+                                        onClick={() => setQuantity(quantity + 1)}
+                                        className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors"
+                                    >
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                            </div>
 
-                            <button
-                                className="w-full py-3 text-xs font-bold uppercase underline tracking-wider text-gray-500 hover:text-black transition-colors"
-                            >
-                                Not sure about sizing?
-                            </button>
-                        </div>
-
-                        {/* Mobile Sticky Footer - Always visible on mobile */}
-                        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 md:hidden z-50 px-5 pb-8 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-                            <div className="flex gap-3">
-                                <button className="w-14 h-14 border border-gray-200 rounded-md flex items-center justify-center flex-shrink-0 text-gray-900">
-                                    <Heart size={24} />
-                                </button>
+                            {/* Action Buttons */}
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => handleAction('cart')}
-                                    className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-md active:scale-95 transition-transform"
+                                    className="flex-1 h-12 border-2 border-black bg-white text-black text-sm font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-all rounded-lg shadow-sm hover:shadow-md"
                                 >
-                                    Add To Bag • {product.price.toLocaleString()}₮
+                                    Сагсанд хийх
+                                </button>
+                                <button
+                                    onClick={() => handleAction('buy')}
+                                    disabled={isBuyNowLoading}
+                                    className="flex-1 h-12 bg-black text-white text-sm font-bold uppercase tracking-wider hover:bg-gray-900 transition-all rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center"
+                                >
+                                    {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                 </button>
                             </div>
                         </div>
+
+                        {/* Mobile Sticky Footer - conditionally visible */}
+                        {isSticky && (
+                            <div className="fixed bottom-0 left-0 right-0 p-4 md:hidden z-50 px-5 pb-8 safe-area-pb animate-fade-in-up">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleAction('cart')}
+                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                    >
+                                        <ShoppingBag size={24} strokeWidth={1.5} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleAction('buy')}
+                                        disabled={isBuyNowLoading}
+                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                    >
+                                        {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Accordions / Description */}
                         <div className="pt-8 border-t border-gray-100 space-y-4">
-                            <div className="space-y-3">
-                                <h3 className="text-sm font-bold uppercase tracking-wider">Description</h3>
-                                <div className="text-sm text-gray-600 leading-relaxed space-y-2 whitespace-pre-wrap">
-                                    {product.description}
+
+
+                            {/* Static Mobile Buttons (The docking point) */}
+                            <div ref={staticButtonsRef} className="md:hidden pt-4 pb-2">
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => handleAction('cart')}
+                                        className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                    >
+                                        <ShoppingBag size={24} strokeWidth={1.5} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleAction('buy')}
+                                        disabled={isBuyNowLoading}
+                                        className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                    >
+                                        {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Delivery Accordion (Static Example) */}
+                            {/* Delivery Accordion */}
                             <details className="group border-b border-gray-100 py-4 cursor-pointer">
                                 <summary className="flex justify-between items-center text-sm font-bold uppercase tracking-wider list-none">
-                                    <span>Delivery & Returns</span>
+                                    <span>Хүргэлт болон буцаалт</span>
                                     <Plus size={18} className="group-open:hidden" />
                                     <Minus size={18} className="hidden group-open:block" />
                                 </summary>
-                                <div className="pt-3 text-sm text-gray-600">
-                                    <p>Free standard delivery on orders over 100,000₮.</p>
-                                    <p>Returns accepted within 14 days.</p>
+                                <div className="pt-3 text-sm text-gray-600 whitespace-pre-wrap">
+                                    {product.deliveryAndReturns || '100,000₮-с дээш худалдан авалтад хүргэлт үнэгүй.\n14 хоногийн дотор буцаах боломжтой.'}
                                 </div>
                             </details>
-
-                            {/* Share */}
-                            <button className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider py-4 mt-4">
-                                <Share2 size={18} />
-                                <span>Share this product</span>
-                            </button>
 
                         </div>
 
@@ -299,7 +375,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                 {/* Video Section (if exists) */}
                 {product.productVideos && product.productVideos.length > 0 && (
                     <div className="py-12 px-5 md:px-10">
-                        <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Product Videos</h2>
+                        <h2 className="text-2xl font-black uppercase tracking-tight mb-6">Бүтээгдэхүүний бичлэгүүд</h2>
                         <div className="flex gap-4 overflow-x-auto pb-6 snap-x">
                             {product.productVideos.map((video, i) => (
                                 <div key={i} className="snap-center shrink-0 w-[280px] md:w-[350px] aspect-[9/16] bg-black rounded-lg overflow-hidden">

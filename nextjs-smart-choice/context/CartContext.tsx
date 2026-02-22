@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
     id: string;
@@ -28,7 +28,25 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>(() => {
+        // Load cart from localStorage on initial mount
+        if (typeof window !== 'undefined') {
+            try {
+                const saved = localStorage.getItem('smart-choice-cart');
+                return saved ? JSON.parse(saved) : [];
+            } catch {
+                return [];
+            }
+        }
+        return [];
+    });
+
+    // Save cart to localStorage whenever it changes
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('smart-choice-cart', JSON.stringify(cart));
+        }
+    }, [cart]);
 
     interface AddToCartItem extends Omit<CartItem, 'quantity'> {
         quantity?: number;
@@ -55,7 +73,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
 
     const removeFromCart = (id: string) => {
-        setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+        console.log('CartContext: removing item', id);
+        setCart((prevCart) => prevCart.filter((item) => {
+            const keep = String(item.id) !== String(id);
+            if (!keep) console.log('CartContext: Removed item', item.id);
+            return keep;
+        }));
     };
 
     const updateQuantity = (id: string, quantity: number) => {
@@ -66,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         setCart((prevCart) =>
             prevCart.map((item) =>
-                item.id === id ? { ...item, quantity } : item
+                String(item.id) === String(id) ? { ...item, quantity } : item
             )
         );
     };

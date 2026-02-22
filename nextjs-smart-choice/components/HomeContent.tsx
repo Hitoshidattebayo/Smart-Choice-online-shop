@@ -213,7 +213,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
                                                         {product.price}
                                                     </span>
                                                     {product.originalPrice && (
-                                                        <span style={{ textDecoration: 'line-through', color: '#888' }}>
+                                                        <span style={{ textDecoration: 'line-through', color: '#ef4444' }}>
                                                             {product.originalPrice}
                                                         </span>
                                                     )}
@@ -328,7 +328,7 @@ export default function HomeContent({ bestSellers, heroProducts, faqs = [], test
                                         <div className="flex items-center gap-2 mt-1">
                                             <p className="product-price">{product.price}</p>
                                             {product.originalPrice && (
-                                                <p className="text-sm text-gray-400 line-through font-medium">
+                                                <p className="text-sm text-red-500 line-through font-medium">
                                                     {product.originalPrice}
                                                 </p>
                                             )}

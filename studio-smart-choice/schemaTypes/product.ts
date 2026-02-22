@@ -113,5 +113,32 @@ export default defineType({
                 }
             ]
         }),
+        defineField({
+            name: 'classificationCode',
+            title: 'Classification Code (EBarimt)',
+            type: 'string',
+            description: 'The product classification code for EBarimt (e.g., 0111100). Essential for tax receipts.'
+        }),
+        defineField({
+            name: 'rating',
+            title: 'Rating',
+            type: 'number',
+            description: 'Average product rating (e.g. 4.8).',
+            initialValue: 5,
+        }),
+        defineField({
+            name: 'reviews',
+            title: 'Number of Reviews',
+            type: 'number',
+            description: 'Total number of reviews.',
+            initialValue: 0,
+        }),
+        defineField({
+            name: 'deliveryAndReturns',
+            title: 'Delivery and Returns Info',
+            type: 'text',
+            description: 'Information displayed in the Delivery and Returns accordion. You can use multiple lines.',
+            initialValue: '100,000₮-с дээш худалдан авалтад хүргэлт үнэгүй.\n14 хоногийн дотор буцаах боломжтой.'
+        }),
     ],
 })

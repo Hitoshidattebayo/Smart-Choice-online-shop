@@ -5,6 +5,8 @@ interface OrderItem {
     image?: string;
 }
 
+import { formatAddress } from './address-data';
+
 interface OrderDetails {
     orderId: string;
     customerName: string;
@@ -86,7 +88,7 @@ export function generateAdminOrderNotificationHTML(order: OrderDetails): string 
                                 ` : ''}
                                 <tr>
                                     <td style="color: #6b7280; font-size: 14px; vertical-align: top;">Хаяг:</td>
-                                    <td style="color: #111827; font-size: 14px; font-weight: 500;">${order.address}</td>
+                                    <td style="color: #111827; font-size: 14px; font-weight: 500;">${formatAddress(order.address)}</td>
                                 </tr>
                             </table>
                         </td>
@@ -177,7 +179,7 @@ export function generateAdminOrderNotificationText(order: OrderDetails): string 
 Нэр: ${order.customerName}
 Утас: ${order.phoneNumber}
 ${order.email ? `Имэйл: ${order.email}` : ''}
-Хаяг: ${order.address}
+Хаяг: ${formatAddress(order.address)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -269,7 +271,7 @@ export function generateCustomerConfirmationHTML(order: OrderDetails): string {
                             <table width="100%" cellpadding="8" cellspacing="0">
                                 <tr>
                                     <td style="color: #6b7280; font-size: 14px; width: 120px;">Хаяг:</td>
-                                    <td style="color: #111827; font-size: 14px; font-weight: 500;">${order.address}</td>
+                                    <td style="color: #111827; font-size: 14px; font-weight: 500;">${formatAddress(order.address)}</td>
                                 </tr>
                                 <tr>
                                     <td style="color: #6b7280; font-size: 14px;">Холбогдох утас:</td>
@@ -367,7 +369,7 @@ export function generateCustomerConfirmationText(order: OrderDetails): string {
 
 ХҮРГЭЛТИЙН МЭДЭЭЛЭЛ:
 
-Хаяг: ${order.address}
+Хаяг: ${formatAddress(order.address)}
 Холбогдох утас: ${order.phoneNumber}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

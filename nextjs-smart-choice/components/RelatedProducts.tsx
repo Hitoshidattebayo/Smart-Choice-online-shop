@@ -65,7 +65,7 @@ export default function RelatedProducts({ products }: Props) {
                                     <div className="flex items-center gap-2 mt-1">
                                         <p className="product-price">{product.price}</p>
                                         {product.originalPrice && (
-                                            <p className="text-sm text-gray-400 line-through font-medium">
+                                            <p className="text-sm text-red-500 line-through font-medium">
                                                 {product.originalPrice}
                                             </p>
                                         )}

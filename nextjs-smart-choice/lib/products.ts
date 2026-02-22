@@ -22,6 +22,7 @@ export interface Product {
     productVideos?: string[];
     videoSectionTitle?: string;
     faqs?: { question: string; answer: string }[];
+    deliveryAndReturns?: string;
 }
 
 export const products: Product[] = [
