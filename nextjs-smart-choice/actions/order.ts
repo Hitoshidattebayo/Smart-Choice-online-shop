@@ -75,8 +75,8 @@ export async function createCartOrder(data: {
         console.log('--- Order Creation Debug Start ---');
         console.log('Client Items:', JSON.stringify(data.items, null, 2));
 
-        // Extract real product ID (cart item id might be "productId_Color-Red")
-        const productIds = data.items.map((item: any) => item.id.split('_')[0]);
+        // Extract real product ID (cart item id format: "sanityProductId" or "sanityProductId||variantKey")
+        const productIds = data.items.map((item: any) => item.id.split('||')[0]);
 
         // Start both requests in parallel
         const [products] = await Promise.all([
@@ -96,7 +96,7 @@ export async function createCartOrder(data: {
         let calculatedTotal = 0;
 
         const validatedItems = data.items.map((item: any) => {
-            const baseProductId = item.id.split('_')[0];
+            const baseProductId = item.id.split('||')[0];
             const product = productMap.get(baseProductId);
             if (!product) {
                 throw new Error(`Product not found: ${item.name}`);

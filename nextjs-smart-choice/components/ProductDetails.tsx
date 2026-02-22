@@ -94,7 +94,7 @@ export default function ProductDetails({ product }: { product: Product }) {
 
             // Generate a unique ID for this specific variant combination
             const selectionKey = Object.keys(selections).sort().map(key => `${key}-${selections[key]}`).join('_');
-            const cartItemId = selectionKey ? `${product.id}_${selectionKey}` : product.id;
+            const cartItemId = selectionKey ? `${product.id}||${selectionKey}` : product.id;
 
             addToCart({
                 id: cartItemId,     // Unique ID for the variant in cart
