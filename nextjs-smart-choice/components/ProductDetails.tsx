@@ -223,13 +223,20 @@ export default function ProductDetails({ product }: { product: Product }) {
                             </div>
 
 
-                            <div className="flex items-center gap-3 pt-2">
-                                <span className="text-2xl font-bold text-gray-900">
-                                    {product.price.toLocaleString()}₮
-                                </span>
-                                {product.originalPrice && (
-                                    <span className="text-lg text-red-500 line-through">
-                                        {product.originalPrice.toLocaleString()}₮
+                            <div className="flex flex-col gap-1 pt-2">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {product.price.toLocaleString()}₮
+                                    </span>
+                                    {product.originalPrice && (
+                                        <span className="text-lg text-red-500 line-through">
+                                            {product.originalPrice.toLocaleString()}₮
+                                        </span>
+                                    )}
+                                </div>
+                                {product.originalPrice && product.originalPrice > product.price && (
+                                    <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full w-fit mt-1">
+                                        Хэмнэлт: {(product.originalPrice - product.price).toLocaleString()}₮
                                     </span>
                                 )}
                             </div>
@@ -366,20 +373,22 @@ export default function ProductDetails({ product }: { product: Product }) {
                                         <span>❌</span> Дууссан — Худалдан авах боломжгүй
                                     </button>
                                 ) : (
-                                    <div className="flex gap-3 max-w-full">
-                                        <button
-                                            onClick={() => handleAction('cart')}
-                                            className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
-                                        >
-                                            <ShoppingBag size={24} strokeWidth={1.5} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleAction('buy')}
-                                            disabled={isBuyNowLoading}
-                                            className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
-                                        >
-                                            {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
-                                        </button>
+                                    <div className="flex flex-col gap-3 max-w-full">
+                                        <div className="flex gap-3 max-w-full">
+                                            <button
+                                                onClick={() => handleAction('cart')}
+                                                className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                            >
+                                                <ShoppingBag size={24} strokeWidth={1.5} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleAction('buy')}
+                                                disabled={isBuyNowLoading}
+                                                className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                            >
+                                                {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -396,20 +405,41 @@ export default function ProductDetails({ product }: { product: Product }) {
                                         <span>❌</span> Дууссан — Худалдан авах боломжгүй
                                     </button>
                                 ) : (
-                                    <div className="flex gap-3 max-w-full">
-                                        <button
-                                            onClick={() => handleAction('cart')}
-                                            className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
-                                        >
-                                            <ShoppingBag size={24} strokeWidth={1.5} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleAction('buy')}
-                                            disabled={isBuyNowLoading}
-                                            className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
-                                        >
-                                            {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
-                                        </button>
+                                    <div className="flex flex-col gap-3 max-w-full">
+                                        <div className="flex items-center justify-between px-1">
+                                            <span className="font-bold text-sm uppercase tracking-wider text-gray-900">Тоо ширхэг:</span>
+                                            <div className="flex items-center border border-gray-200 rounded-lg h-10 w-32 bg-white">
+                                                <button
+                                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                                    className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors"
+                                                >
+                                                    <Minus size={16} />
+                                                </button>
+                                                <span className="flex-1 text-center font-bold text-gray-900">{quantity}</span>
+                                                <button
+                                                    onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                                                    disabled={isOutOfStock || quantity >= maxQuantity}
+                                                    className="w-10 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500 transition-colors disabled:opacity-50"
+                                                >
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-3 max-w-full">
+                                            <button
+                                                onClick={() => handleAction('cart')}
+                                                className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
+                                            >
+                                                <ShoppingBag size={24} strokeWidth={1.5} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleAction('buy')}
+                                                disabled={isBuyNowLoading}
+                                                className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                            >
+                                                {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
