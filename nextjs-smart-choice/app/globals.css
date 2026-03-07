@@ -197,6 +197,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -207,6 +208,7 @@ body {
   background-color: var(--color-primary-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 /* ===== Typography ===== */
@@ -1249,12 +1251,12 @@ a:hover {
   }
 
   .footer-promo-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: 1fr !important;
   }
 
   .footer-middle {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 1.5rem;
   }
 
@@ -1266,8 +1268,9 @@ a:hover {
   }
 
   .footer-bottom-links {
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
 }
 
@@ -1439,6 +1442,68 @@ a:hover {
 
   100% {
     transform: translateX(0%);
+  }
+}
+
+/* ===== Footer Mobile Overrides (Gymshark) ===== */
+@media (max-width: 768px) {
+  .footer {
+    padding: 3rem 0;
+    margin-top: 3rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .footer-column h4 {
+    margin-bottom: 1rem;
+    font-size: 16px;
+  }
+
+  .footer-links li {
+    margin-bottom: 1rem;
+  }
+
+  .footer-links a {
+    font-size: 14px;
+  }
+
+  .footer-promo-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .footer-promo-card {
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .footer-promo-img {
+    height: 70px !important;
+  }
+
+  .footer-middle {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 0;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+    padding-top: 2rem;
+  }
+
+  .footer-bottom-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
 }
 

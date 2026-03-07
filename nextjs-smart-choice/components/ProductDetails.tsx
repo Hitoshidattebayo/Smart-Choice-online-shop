@@ -131,7 +131,7 @@ export default function ProductDetails({ product }: { product: Product }) {
     };
 
     return (
-        <div className="min-h-screen font-sans bg-white pb-24 md:pb-0">
+        <div className="min-h-screen font-sans bg-white pb-24 md:pb-0 overflow-x-hidden w-full max-w-[100vw]">
 
 
             <div className="max-w-[1440px] mx-auto">
@@ -360,13 +360,13 @@ export default function ProductDetails({ product }: { product: Product }) {
 
                         {/* Mobile Sticky Footer - conditionally visible */}
                         {isSticky && (
-                            <div className="fixed bottom-0 left-0 right-0 p-4 md:hidden z-50 px-5 pb-8 safe-area-pb animate-fade-in-up">
+                            <div className="fixed bottom-0 left-0 right-0 p-4 md:hidden z-50 px-5 pb-8 safe-area-pb animate-fade-in-up max-w-[100vw] box-border">
                                 {isOutOfStock ? (
                                     <button disabled className="w-full h-14 bg-red-50 border-2 border-red-300 text-red-600 text-base font-bold uppercase tracking-wider rounded-full cursor-not-allowed flex items-center justify-center gap-2">
                                         <span>❌</span> Дууссан — Худалдан авах боломжгүй
                                     </button>
                                 ) : (
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 max-w-full">
                                         <button
                                             onClick={() => handleAction('cart')}
                                             className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
@@ -376,7 +376,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                                         <button
                                             onClick={() => handleAction('buy')}
                                             disabled={isBuyNowLoading}
-                                            className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                            className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
                                         >
                                             {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                         </button>
@@ -390,13 +390,13 @@ export default function ProductDetails({ product }: { product: Product }) {
 
 
                             {/* Static Mobile Buttons (The docking point) */}
-                            <div ref={staticButtonsRef} className="md:hidden pt-4 pb-2">
+                            <div ref={staticButtonsRef} className="md:hidden pt-4 pb-2 w-full max-w-[100vw] box-border">
                                 {isOutOfStock ? (
                                     <button disabled className="w-full h-14 bg-red-50 border-2 border-red-300 text-red-600 text-base font-bold uppercase tracking-wider rounded-full cursor-not-allowed flex items-center justify-center gap-2">
                                         <span>❌</span> Дууссан — Худалдан авах боломжгүй
                                     </button>
                                 ) : (
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 max-w-full">
                                         <button
                                             onClick={() => handleAction('cart')}
                                             className="w-14 h-14 border border-gray-200 rounded-full flex items-center justify-center flex-shrink-0 text-gray-900 bg-white active:scale-95 transition-transform"
@@ -406,7 +406,7 @@ export default function ProductDetails({ product }: { product: Product }) {
                                         <button
                                             onClick={() => handleAction('buy')}
                                             disabled={isBuyNowLoading}
-                                            className="flex-1 h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
+                                            className="flex-1 min-w-0 overflow-hidden h-14 bg-black text-white text-base font-bold uppercase tracking-wider rounded-full active:scale-95 transition-transform flex items-center justify-center"
                                         >
                                             {isBuyNowLoading ? <Loader2 className="animate-spin" /> : 'ЗАХИАЛАХ'}
                                         </button>
