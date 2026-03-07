@@ -67,6 +67,23 @@ export const sendMetaEvent = async (data: MetaEventData) => {
         .setEventSourceUrl(eventSourceUrl)
         .setActionSource('website');
 
+    // Currently SDK doesn't natively support attribution_data or original_event_data 
+    // without extending but we can try injecting it if needed or using CustomData.
+    // The closest supported fields in standard Meta CAPI SDK Event format are ActionSource, UserData, CustomData.
+
+    // Using an object hack to append unofficial fields supported by their HTTP API but not perfectly typed in SDK.
+    const rawServerEvent: any = serverEvent;
+
+    // Some agencies require this exact block for tracking
+    rawServerEvent.original_event_data = {
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000)
+    };
+
+    rawServerEvent.attribution_data = {
+        attribution_share: "0.3" // Value seen in your payload
+    };
+
     if (customData) {
         const metaCustomData = new CustomData();
         if (customData.currency) metaCustomData.setCurrency(customData.currency);
