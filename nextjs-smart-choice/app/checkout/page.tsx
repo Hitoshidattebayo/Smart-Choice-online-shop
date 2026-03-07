@@ -8,6 +8,7 @@ import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle } from 'luc
 import Image from 'next/image';
 import { createCartOrder, createQPayInvoice } from '@/actions/order';
 import { MONGOLIA_DATA } from '@/lib/address-data';
+import { trackMetaEvent } from '@/lib/track-meta-event';
 
 // ... imports
 
@@ -31,7 +32,15 @@ export default function CheckoutPage() {
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+        // Track InitiateCheckout when the page loads
+        if (cartTotal > 0) {
+            trackMetaEvent('InitiateCheckout', {
+                value: cartTotal,
+                currency: 'MNT',
+                contents: cart.map(item => ({ id: item.id, quantity: item.quantity })),
+            });
+        }
+    }, [cartTotal, cart]);
 
     useEffect(() => {
         // Generate reference: SC - [First 2 letters of first product] - [Random Number]
@@ -134,6 +143,14 @@ export default function CheckoutPage() {
                         if (checkData.status === 'PAID') {
                             clearInterval(checkInterval);
                             setIsSuccess(true);
+
+                            // Send Purchase event
+                            trackMetaEvent('Purchase', {
+                                value: cartTotal,
+                                currency: 'MNT',
+                                contents: cart.map(item => ({ id: item.id, quantity: item.quantity })),
+                            });
+
                             clearCart();
                             router.push(`/checkout/success?ref=${result.paymentReference}`);
                         }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Product } from '../lib/products';
 import { useCart } from '@/context/CartContext';
+import { trackMetaEvent } from '@/lib/track-meta-event';
 
 
 export default function ProductDetails({ product }: { product: Product }) {
@@ -45,6 +46,17 @@ export default function ProductDetails({ product }: { product: Product }) {
             window.removeEventListener('resize', checkSticky);
         };
     }, []);
+
+    // Track ViewContent on mount
+    useEffect(() => {
+        trackMetaEvent('ViewContent', {
+            content_name: product.name,
+            content_type: 'product',
+            content_ids: [product.id],
+            value: product.price,
+            currency: 'MNT',
+        });
+    }, [product.id, product.name, product.price]);
 
     // Images logic
     const images = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
@@ -103,6 +115,18 @@ export default function ProductDetails({ product }: { product: Product }) {
                 image: product.image,
                 quantity: quantity || 1,
             });
+
+            // Track AddToCart Event
+            if (action === 'cart') {
+                trackMetaEvent('AddToCart', {
+                    content_name: finalName,
+                    content_type: 'product',
+                    content_ids: [product.id],
+                    value: product.price * (quantity || 1),
+                    currency: 'MNT',
+                    contents: [{ id: product.id, quantity: quantity || 1 }],
+                });
+            }
 
             if (action === 'cart') {
                 openCart();
