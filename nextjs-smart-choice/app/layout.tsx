@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Facebook, Instagram, Twitter } from "lucide-react";
+import Script from "next/script";
 import Header from "../components/Header";
 import { CartProvider } from "../context/CartContext";
 import { Providers } from "../components/Providers";
@@ -27,7 +28,9 @@ export default function RootLayout({
         <html lang="en">
             <head>
                 {/* Meta Pixel Code */}
-                <script
+                <Script
+                    id="fb-pixel"
+                    strategy="afterInteractive"
                     dangerouslySetInnerHTML={{
                         __html: `
 !function(f,b,e,v,n,t,s)
@@ -43,6 +46,9 @@ fbq('track', 'PageView');
                         `,
                     }}
                 />
+                {/* End Meta Pixel Code */}
+            </head>
+            <body>
                 <noscript>
                     <img
                         height="1"
@@ -52,9 +58,6 @@ fbq('track', 'PageView');
                         alt=""
                     />
                 </noscript>
-                {/* End Meta Pixel Code */}
-            </head>
-            <body>
                 <Providers>
                     <CartProvider>
                         <DevIndicator />
