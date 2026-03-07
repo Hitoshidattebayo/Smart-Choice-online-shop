@@ -28,11 +28,12 @@ export default function RootLayout({
         <html lang="en">
             <head>
                 {/* Meta Pixel Code */}
-                <Script
-                    id="fb-pixel"
-                    strategy="afterInteractive"
-                    dangerouslySetInnerHTML={{
-                        __html: `
+                {process.env.META_PIXEL_ID && (
+                    <Script
+                        id="fb-pixel"
+                        strategy="afterInteractive"
+                        dangerouslySetInnerHTML={{
+                            __html: `
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -41,23 +42,26 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '802240399480647');
+fbq('init', '${process.env.META_PIXEL_ID}');
 fbq('track', 'PageView');
-                        `,
-                    }}
-                />
+                            `,
+                        }}
+                    />
+                )}
                 {/* End Meta Pixel Code */}
             </head>
             <body>
-                <noscript>
-                    <img
-                        height="1"
-                        width="1"
-                        style={{ display: "none" }}
-                        src="https://www.facebook.com/tr?id=802240399480647&ev=PageView&noscript=1"
-                        alt=""
-                    />
-                </noscript>
+                {process.env.META_PIXEL_ID && (
+                    <noscript>
+                        <img
+                            height="1"
+                            width="1"
+                            style={{ display: "none" }}
+                            src={`https://www.facebook.com/tr?id=${process.env.META_PIXEL_ID}&ev=PageView&noscript=1`}
+                            alt=""
+                        />
+                    </noscript>
+                )}
                 <Providers>
                     <CartProvider>
                         <DevIndicator />
