@@ -149,6 +149,9 @@ export default function CheckoutPage() {
                                 value: cartTotal,
                                 currency: 'MNT',
                                 contents: cart.map(item => ({ id: item.id, quantity: item.quantity })),
+                            }, {
+                                email: formData.email,
+                                phone: formData.phone,
                             });
 
                             clearCart();

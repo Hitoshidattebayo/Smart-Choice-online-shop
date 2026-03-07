@@ -21,6 +21,8 @@ export interface MetaEventData {
     userAgent: string;
     fbp?: string;
     fbc?: string;
+    email?: string;
+    phone?: string;
     customData?: {
         currency?: string;
         value?: number;
@@ -44,6 +46,8 @@ export const sendMetaEvent = async (data: MetaEventData) => {
         userAgent,
         fbp,
         fbc,
+        email,
+        phone,
         customData,
     } = data;
 
@@ -53,6 +57,8 @@ export const sendMetaEvent = async (data: MetaEventData) => {
 
     if (fbp) userData.setFbp(fbp);
     if (fbc) userData.setFbc(fbc);
+    if (email) userData.setEmail(email.toLowerCase().trim());
+    if (phone) userData.setPhone(phone.replace(/\D/g, ''));
 
     const serverEvent = new ServerEvent()
         .setEventName(eventName)

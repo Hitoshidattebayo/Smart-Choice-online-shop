@@ -11,7 +11,8 @@ const getCookie = (name: string): string | undefined => {
 
 export const trackMetaEvent = async (
     eventName: MetaEventData['eventName'],
-    customData?: MetaEventData['customData']
+    customData?: MetaEventData['customData'],
+    userData?: { email?: string; phone?: string }
 ) => {
     try {
         const fbp = getCookie('_fbp');
@@ -27,6 +28,8 @@ export const trackMetaEvent = async (
                 eventSourceUrl: window.location.href,
                 fbp,
                 fbc,
+                email: userData?.email,
+                phone: userData?.phone,
                 customData,
             }),
         });

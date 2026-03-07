@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
             ...data,
             userIp,
             userAgent,
+            email: data.email,
+            phone: data.phone,
         };
 
         await sendMetaEvent({
@@ -22,6 +24,8 @@ export async function POST(req: NextRequest) {
             userAgent: eventData.userAgent,
             fbc: eventData.fbc,
             fbp: eventData.fbp,
+            email: eventData.email,
+            phone: eventData.phone,
             customData: eventData.customData,
         });
 
