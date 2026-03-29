@@ -163,12 +163,5 @@ export default defineType({
             description: 'Total number of reviews.',
             initialValue: 0,
         }),
-        defineField({
-            name: 'deliveryAndReturns',
-            title: 'Delivery and Returns Info',
-            type: 'text',
-            description: 'Information displayed in the Delivery and Returns accordion. You can use multiple lines.',
-            initialValue: '100,000₮-с дээш худалдан авалтад хүргэлт үнэгүй.\n14 хоногийн дотор буцаах боломжтой.'
-        }),
     ],
 })

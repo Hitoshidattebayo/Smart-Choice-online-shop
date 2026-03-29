@@ -1,4 +1,4 @@
-import { MetaEventData } from './meta-capi';
+import type { MetaEventData } from './meta-capi';
 
 // Helper to get FBP and FBC from cookies
 const getCookie = (name: string): string | undefined => {

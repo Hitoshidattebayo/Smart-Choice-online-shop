@@ -470,17 +470,6 @@ export default function ProductDetails({ product }: { product: Product }) {
                                 )}
                             </div>
 
-                            {/* Delivery Accordion */}
-                            <details className="group py-4 cursor-pointer" style={{ borderBottom: `1px solid ${C.navyBorder}` }}>
-                                <summary className="flex justify-between items-center text-xs font-bold uppercase tracking-widest list-none" style={{ color: C.navy }}>
-                                    <span>Хүргэлт болон буцаалт</span>
-                                    <Plus size={18} className="group-open:hidden" />
-                                    <Minus size={18} className="hidden group-open:block" />
-                                </summary>
-                                <div className="pt-3 text-sm whitespace-pre-wrap" style={{ color: C.navyMid }}>
-                                    {product.deliveryAndReturns || '100,000₮-с дээш худалдан авалтад хүргэлт үнэгүй.\n14 хоногийн дотор буцаах боломжтой.'}
-                                </div>
-                            </details>
 
                         </div>
 

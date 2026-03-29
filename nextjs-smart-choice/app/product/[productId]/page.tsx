@@ -57,8 +57,6 @@ export default async function ProductPage({
         productVideos: productData.productVideos || [],
         faqs: productData.faqs || [],
         rating: productData.rating,
-        reviews: productData.reviews,
-        deliveryAndReturns: productData.deliveryAndReturns
     };
 
     // Map Related Products
