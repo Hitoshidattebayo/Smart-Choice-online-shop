@@ -471,6 +471,24 @@ export default function ProductDetails({ product }: { product: Product }) {
                             </div>
 
 
+                            {/* Product FAQs Accordion */}
+                            {product.faqs && product.faqs.length > 0 && (
+                                <div className="pt-2">
+                                    {product.faqs.map((faq, idx) => (
+                                        <details key={idx} className="group py-4 cursor-pointer" style={{ borderBottom: `1px solid ${C.navyBorder}` }}>
+                                            <summary className="flex justify-between items-center text-xs font-bold uppercase tracking-widest list-none" style={{ color: C.navy }}>
+                                                <span className="normal-case text-sm font-semibold">{faq.question}</span>
+                                                <Plus size={18} className="group-open:hidden flex-shrink-0 ml-2" />
+                                                <Minus size={18} className="hidden group-open:block flex-shrink-0 ml-2" />
+                                            </summary>
+                                            <div className="pt-3 text-sm whitespace-pre-wrap leading-relaxed" style={{ color: C.navyMid }}>
+                                                {faq.answer}
+                                            </div>
+                                        </details>
+                                    ))}
+                                </div>
+                            )}
+
                         </div>
 
                     </div>

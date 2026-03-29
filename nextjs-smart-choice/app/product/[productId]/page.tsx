@@ -81,7 +81,7 @@ export default async function ProductPage({
     return (
         <div className="bg-white">
             <ProductDetails product={product} />
-            <FAQSection faqs={product.faqs && product.faqs.length > 0 ? product.faqs : globalFaqs} />
+            <FAQSection faqs={globalFaqs} />
             <RelatedProducts products={relatedProducts} />
         </div>
     );
