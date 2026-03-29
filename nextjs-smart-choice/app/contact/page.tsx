@@ -8,8 +8,8 @@ export default function ContactPage() {
                 Бидэнтэй холбогдохыг хүсвэл доорх мэдээллийг ашиглана уу.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                <a href="mailto:info@smartchoice.mn" style={{ color: '#000', textDecoration: 'underline' }}>info@smartchoice.mn</a>
-                <a href="tel:+97600000000" style={{ color: '#000', textDecoration: 'none' }}>+976 0000 0000</a>
+                <a href="mailto:mnsmartchoice@gmail.com" style={{ color: '#000', textDecoration: 'underline' }}>mnsmartchoice@gmail.com</a>
+                <a href="tel:+97695579271" style={{ color: '#000', textDecoration: 'none' }}>+976 9557 9271</a>
             </div>
         </div>
     );
