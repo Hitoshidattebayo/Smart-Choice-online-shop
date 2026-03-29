@@ -57,7 +57,7 @@ export default async function Home() {
         .slice(0, 3)
         .map((p: any) => ({
             id: p.slug?.current || p._id,
-            title: "ОНЦЦОЛОХ БАРАА",
+            title: "ОНЦЛОХ БАРАА",
             headline: p.name,
             description: p.description || "Ухаалаг сонголт",
             subtext: "Шилдэг бүтээгдэхүүн",
