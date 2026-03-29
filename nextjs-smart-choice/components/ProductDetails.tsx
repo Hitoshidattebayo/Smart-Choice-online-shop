@@ -78,6 +78,12 @@ export default function ProductDetails({ product }: { product: Product }) {
             value: product.price,
             currency: 'MNT',
         });
+        // Track in our own DB for analytics
+        fetch('/api/track-view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: product.id, productName: product.name }),
+        }).catch(() => {}); // Silent fail
     }, [product.id, product.name, product.price]);
 
     // Images logic

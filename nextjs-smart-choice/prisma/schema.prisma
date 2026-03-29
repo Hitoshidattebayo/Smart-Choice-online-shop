@@ -98,3 +98,16 @@ model Product {
   description String
   createdAt   DateTime @default(now())
 }
+
+// Product view tracking for analytics
+model ProductView {
+  id          String   @id @default(uuid())
+  productId   String   // Sanity product slug/id
+  productName String
+  sessionId   String?  // Anonymous session identifier
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([productId])
+  @@index([createdAt])
+}
