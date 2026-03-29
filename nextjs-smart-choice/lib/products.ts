@@ -20,6 +20,7 @@ export interface Product {
     description: string;
     image: string; // Kept for type compatibility but won't be used as an image
     gallery?: string[];
+    logoImage?: string;
     badge?: string;
     variants?: ProductVariant[];
     specifications?: { label: string; value: string }[];

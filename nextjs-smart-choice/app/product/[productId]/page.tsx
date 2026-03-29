@@ -50,6 +50,7 @@ export default async function ProductPage({
             : '',
         // Map all images
         gallery: productData.images?.map((img: any) => urlFor(img).url()) || [],
+        logoImage: productData.logoImage ? urlFor(productData.logoImage).url() : undefined,
         variants: productData.variants || [],
         stockStatus: productData.stockStatus,
         videoSectionTitle: productData.videoSectionTitle,

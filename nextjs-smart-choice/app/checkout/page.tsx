@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle } from 'lucide-react';
+import { Trash2, CreditCard, Truck, MapPin, Phone, User, CheckCircle, ShieldAlert } from 'lucide-react';
 import Image from 'next/image';
 import { createCartOrder, createQPayInvoice } from '@/actions/order';
 import { MONGOLIA_DATA } from '@/lib/address-data';
@@ -245,6 +245,27 @@ export default function CheckoutPage() {
                                     <h2 className="text-xl font-bold">Хүргэлтийн мэдээлэл</h2>
                                 </div>
 
+                                <div className="mb-6 p-4 md:p-5 border border-red-500 rounded-xl bg-white shadow-sm text-sm">
+                                    <h3 className="font-bold text-red-600 flex items-center gap-2 mb-3 text-base">
+                                        <ShieldAlert className="w-5 h-5" /> Сануулга
+                                    </h3>
+                                    <p className="text-gray-800 font-medium mb-3">Бид таны өгсөн мэдээллийг зөвхөн дараах зорилгоор ашиглана:</p>
+                                    <ul className="space-y-2 text-gray-700 mb-4 ml-1">
+                                        <li className="flex items-start gap-2"><span>🚚</span> <span>Захиалгыг зөв хаягаар хүргэх</span></li>
+                                        <li className="flex items-start gap-2"><span>📞</span> <span>Хүргэлтийн үед холбогдох</span></li>
+                                        <li className="flex items-start gap-2"><span>📦</span> <span>Захиалгын явцыг баталгаажуулах</span></li>
+                                        <li className="flex items-start gap-2"><span>🔄</span> <span>Алдаа гарвал засвар хийх, буцаалт хийх</span></li>
+                                    </ul>
+                                    <div className="pt-3 border-t border-red-100/50 space-y-1.5 bg-red-50/30 -mx-4 md:-mx-5 px-4 md:px-5 pb-1">
+                                        <p className="flex items-center gap-2 text-gray-600 font-medium text-xs md:text-sm">
+                                            <span className="text-emerald-500 font-black">✓</span> Бид таны мэдээллийг гуравдагч этгээдэд зарахгүй, дамжуулахгүй
+                                        </p>
+                                        <p className="flex items-center gap-2 text-gray-600 font-medium text-xs md:text-sm">
+                                            <span className="text-emerald-500 font-black">✓</span> Таны мэдээлэл хүргэлт амжилттай хийгдсэнээс 24 цагийн дотор устах болно.
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <form id="shipping-form" onSubmit={handleCreateOrder} className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Овог нэр</label>
@@ -438,12 +459,18 @@ export default function CheckoutPage() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center text-center">
-                                        {/* QPay Logo + Name */}
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-                                                <img src="https://qpay.mn/q/logo/qpay_logo_square.png" alt="QPay" className="w-8 h-8 object-contain" />
-                                            </div>
-                                            <span className="text-lg font-bold">QPay</span>
+                                        {/* Logo + Name (Product Logo or QPay fallback) */}
+                                        <div className="flex items-center justify-center mb-4 min-h-[40px]">
+                                            {cart[0]?.logoImage ? (
+                                                <img src={cart[0].logoImage} alt="Brand Logo" className="h-10 md:h-12 object-contain" />
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                                        <img src="https://qpay.mn/q/logo/qpay_logo_square.png" alt="QPay" className="w-8 h-8 object-contain" />
+                                                    </div>
+                                                    <span className="text-lg font-bold">QPay</span>
+                                                </div>
+                                            )}
                                         </div>
                                         {/* Amount & Recipient */}
                                         <p className="text-base font-semibold text-gray-800 mb-1">
@@ -490,7 +517,12 @@ export default function CheckoutPage() {
                         {/* Right Column: Order Summary */}
                         <div className="lg:col-span-5">
                             <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
-                                <h2 className="text-xl font-bold mb-6 border-b pb-4">Захиалгын тойм</h2>
+                                <div className="border-b pb-4 mb-6">
+                                    <h2 className="text-xl font-bold mb-1">Захиалгын тойм</h2>
+                                    <p className="text-sm text-orange-600 font-medium bg-orange-50 p-2.5 rounded-lg border border-orange-100">
+                                        Таны сонгосон бараа болон тоо ширхгийг зөв эсэхийг сайтар шалгана уу...
+                                    </p>
+                                </div>
 
                                 <div className="space-y-4 max-h-[400px] overflow-y-auto mb-6 pr-2">
                                     {cart.map((item) => (

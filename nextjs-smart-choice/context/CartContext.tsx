@@ -8,6 +8,7 @@ export interface CartItem {
     price: number;
     originalPrice?: number;
     image: string;
+    logoImage?: string;
     quantity: number;
 }
 

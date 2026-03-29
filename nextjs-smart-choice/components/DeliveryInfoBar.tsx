@@ -1,28 +1,40 @@
 import { Clock, Truck, MapPin } from "lucide-react";
 
+// Нэг бүлэг өгөгдөл
+const ItemGroup = () => (
+    <>
+        <div className="flex items-center gap-4 shrink-0">
+            <Clock size={22} />
+            <span className="font-bold tracking-widest uppercase text-sm">24 цагийн дотор</span>
+        </div>
+        <div className="flex items-center gap-4 shrink-0">
+            <Truck size={22} />
+            <span className="font-bold tracking-widest uppercase text-sm">Хот дотор хүргэлт үнэгүй</span>
+        </div>
+        <div className="flex items-center gap-4 shrink-0">
+            <MapPin size={22} />
+            <span className="font-bold tracking-widest uppercase text-sm">Орон нутагт хүргэлт хийнэ</span>
+        </div>
+    </>
+);
+
+// Тус бүлгээ олон дахин давтсан нэг том хэсэг (дэлгэцийг дүүргэх хэмжээний урттай)
+const SingleSlide = () => (
+    <div className="flex items-center gap-[150px] px-[75px]">
+        <ItemGroup />
+        <ItemGroup />
+        <ItemGroup />
+        <ItemGroup />
+    </div>
+);
+
 export default function DeliveryInfoBar() {
     return (
-        <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '3rem',
-            marginBottom: '4rem',
-            flexWrap: 'wrap',
-            color: 'var(--color-text-light)',
-            fontSize: '1.1rem',
-            fontWeight: 500
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                <Clock size={24} />
-                <span>24 цагийн дотор</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                <Truck size={24} />
-                <span>Хот дотор хүргэлт үнэгүй</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                <MapPin size={24} />
-                <span>Хөдөө орон нутгийн унаанд тавьж явуулах боломжтой</span>
+        <div className="bg-[var(--color-dark-bg)] text-[var(--color-accent-gold)] py-4 overflow-hidden whitespace-nowrap border-b border-white/10 flex w-full">
+            {/* 80s duration ensures it's extremely slow, and duplicating SingleSlide ensures an infinite seamless loop */}
+            <div className="flex w-max animate-marquee hover:[animation-play-state:paused]" style={{ animationDuration: '80s' }}>
+                <SingleSlide /> {/* Эхний хагас */}
+                <SingleSlide /> {/* Хоёр дахь хагас (яг ижил) */}
             </div>
         </div>
     );

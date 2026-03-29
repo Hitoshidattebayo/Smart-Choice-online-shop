@@ -62,6 +62,15 @@ export default defineType({
             of: [{ type: 'image' }],
         }),
         defineField({
+            name: 'logoImage',
+            title: 'Logo Image Overlay (Олон улсын брэнд лого)',
+            type: 'image',
+            description: 'Optional logo image to display on top of the product images',
+            options: {
+                hotspot: true,
+            }
+        }),
+        defineField({
             name: 'variants',
             title: 'Variants',
             type: 'array',

@@ -51,17 +51,20 @@ export default async function Home() {
         badgeType: p.stockStatus || (p.originalPrice ? 'sale' : undefined)
     }));
 
-    // Map Hero Banners
-    const heroProducts = banners.map((b: any) => ({
-        id: b.productLink?.slug?.current || 'hero-' + b._id,
-        title: b.title || "Offer",
-        headline: b.headline,
-        description: b.subtext, // Assuming description maps to subtext in hero schema
-        subtext: b.subtext,
-        price: b.productLink?.price ? `${b.productLink.price.toLocaleString()}₮` : '',
-        originalPrice: b.productLink?.originalPrice ? `${b.productLink.originalPrice.toLocaleString()}₮` : null,
-        image: b.image ? urlFor(b.image).url() : '/placeholder.jpg'
-    }));
+    // Map Hero Banners from products, filtering only "Бэлэн" (instock) products
+    const heroProducts = products
+        .filter((p: any) => !p.stockStatus || p.stockStatus === 'instock')
+        .slice(0, 3)
+        .map((p: any) => ({
+            id: p.slug?.current || p._id,
+            title: "ОНЦЦОЛОХ БАРАА",
+            headline: p.name,
+            description: p.description || "Ухаалаг сонголт",
+            subtext: "Шилдэг бүтээгдэхүүн",
+            price: p.price ? `${p.price.toLocaleString()}₮` : '',
+            originalPrice: p.originalPrice ? `${p.originalPrice.toLocaleString()}₮` : null,
+            image: p.images && p.images[0] ? urlFor(p.images[0]).url() : '/placeholder.jpg'
+        }));
 
     const mappedTestimonials = testimonials.map((t: any) => ({
         id: t._id,
